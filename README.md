@@ -1,5 +1,7 @@
 # 給樂數位 Gather 官網
 
+> 🌐 線上：https://gather-landing-kappa.vercel.app
+
 AI 賦能的客製化數位系統 — 單頁式精品形象官網。
 技術棧：**Next.js 14 (App Router) + TypeScript + Supabase**，部署於 **Vercel**。
 
