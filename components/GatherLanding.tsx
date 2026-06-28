@@ -298,8 +298,9 @@ export default function GatherLanding({
               color: "#1d1d1f",
             }}
           >
-            為每個品牌，<br />
-            打造專屬的
+            為每個品牌
+            <br />
+            打造專屬
             <span
               style={{
                 background: "linear-gradient(110deg,#1668c2 10%,#ef7d22 90%)",
@@ -310,7 +311,6 @@ export default function GatherLanding({
             >
               數位資產
             </span>
-            。
           </h1>
           <p
             data-reveal=""
@@ -323,7 +323,9 @@ export default function GatherLanding({
               color: "#6e6e73",
             }}
           >
-            客製化網站、AI 賦能的 CRM 系統、金流物流與電子發票串接——讓智慧技術與精緻設計精準結合，一站到位。
+            客製化網站、AI 賦能的 CRM 系統、金、物流與電子發票串接
+            <br />
+            讓智慧技術與精緻設計精準結合，一站到位。
           </p>
           <div
             data-reveal=""
