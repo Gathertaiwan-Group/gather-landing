@@ -190,15 +190,13 @@ export default function GatherLanding({
             textDecoration: "none",
           }}
         >
-          <span
-            style={{
-              width: 9,
-              height: 9,
-              background: "linear-gradient(135deg,#1668c2,#ef7d22)",
-              borderRadius: 2,
-              transform: "rotate(45deg)",
-              display: "inline-block",
-            }}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/logo.png"
+            alt="給樂數位 Gather logo"
+            width={28}
+            height={28}
+            style={{ width: 28, height: 28, display: "block" }}
           />
           <span
             style={{
@@ -781,15 +779,13 @@ export default function GatherLanding({
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <span
-              style={{
-                width: 8,
-                height: 8,
-                background: "linear-gradient(135deg,#1668c2,#ef7d22)",
-                borderRadius: 2,
-                transform: "rotate(45deg)",
-                display: "inline-block",
-              }}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/logo.png"
+              alt="給樂數位 Gather logo"
+              width={24}
+              height={24}
+              style={{ width: 24, height: 24, display: "block" }}
             />
             <span style={{ fontWeight: 600, fontSize: 15, color: "#1d1d1f" }}>Gather</span>
           </div>
