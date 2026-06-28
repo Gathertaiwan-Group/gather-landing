@@ -12,6 +12,23 @@ export const metadata: Metadata = {
       "給樂數位｜客製化網站建置、AI 賦能的 CRM 系統、金流物流與電子發票串接。",
     type: "website",
     locale: "zh_TW",
+    siteName: "給樂數位 Gather",
+    url: "https://gathertaiwan.com",
+    images: [
+      {
+        url: "/og.jpg",
+        width: 1200,
+        height: 630,
+        alt: "給樂數位 Gather — 為每個品牌，打造專屬數位資產",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "給樂數位 Gather — AI 賦能的客製化數位系統",
+    description:
+      "給樂數位｜客製化網站建置、AI 賦能的 CRM 系統、金流物流與電子發票串接。",
+    images: ["/og.jpg"],
   },
 };
 

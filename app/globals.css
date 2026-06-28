@@ -59,9 +59,12 @@ a {
   .gt-work-grid {
     grid-template-columns: 1fr !important;
   }
-  /* 窄螢幕收合 nav：僅留 logo + 聯絡我們 CTA（README §4）*/
-  .gt-navlink-text,
-  .gt-nav-sub {
+  /* 窄螢幕收合 nav：隱藏理念/服務/作品文字連結，保留 logo + 品牌名 + CTA（README §4）*/
+  .gt-navlink-text {
     display: none !important;
+  }
+  /* 給樂數位副標在很窄的螢幕字距縮一點以免擠壓 */
+  .gt-nav-sub {
+    letter-spacing: 0.18em !important;
   }
 }
