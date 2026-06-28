@@ -802,7 +802,7 @@ export default function GatherLanding({
             </span>
           </div>
           <div style={{ fontSize: 12, color: "#86868b" }}>
-            給樂行銷有限公司　·　統編 82962763　·　Copyright © 2026 All rights reserved.
+            給樂行銷有限公司　·　Copyright © 2026 All rights reserved.
           </div>
           <a
             href={lineUrl}
