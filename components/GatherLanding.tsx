@@ -790,6 +790,16 @@ export default function GatherLanding({
               style={{ width: 24, height: 24, display: "block" }}
             />
             <span style={{ fontWeight: 600, fontSize: 15, color: "#1d1d1f" }}>Gather</span>
+            <span
+              style={{
+                fontSize: 12,
+                letterSpacing: ".26em",
+                color: "#86868b",
+                marginLeft: 2,
+              }}
+            >
+              給樂數位
+            </span>
           </div>
           <div style={{ fontSize: 12, color: "#86868b" }}>
             給樂行銷有限公司　·　統編 82962763　·　Copyright © 2026 All rights reserved.
