@@ -164,6 +164,7 @@ export default function GatherLanding({
     <>
       {/* ============ NAV ============ */}
       <nav
+        className="gt-nav"
         style={{
           position: "fixed",
           top: 0,
@@ -252,6 +253,7 @@ export default function GatherLanding({
             href={lineUrl}
             target="_blank"
             rel="noopener"
+            className="gt-nav-cta"
             onMouseEnter={onPrimaryEnter}
             onMouseLeave={onPrimaryLeave}
             style={{
@@ -272,7 +274,12 @@ export default function GatherLanding({
       {/* ============ HERO ============ */}
       <header
         id="top"
-        style={{ position: "relative", zIndex: 1, padding: "170px 6vw 90px", textAlign: "center" }}
+        style={{
+          position: "relative",
+          zIndex: 1,
+          padding: "clamp(116px,17vw,170px) 6vw clamp(56px,10vw,90px)",
+          textAlign: "center",
+        }}
       >
         <div data-stagger-group="" style={{ maxWidth: 1000, margin: "0 auto" }}>
           <div
@@ -292,7 +299,7 @@ export default function GatherLanding({
             style={{
               margin: 0,
               fontWeight: 700,
-              fontSize: "clamp(46px,7.4vw,104px)",
+              fontSize: "clamp(38px,7.4vw,104px)",
               lineHeight: 1.05,
               letterSpacing: "-.028em",
               color: "#1d1d1f",
@@ -366,7 +373,7 @@ export default function GatherLanding({
             </a>
           </div>
         </div>
-        <div data-reveal="" style={{ maxWidth: 1120, margin: "72px auto 0" }}>
+        <div data-reveal="" style={{ maxWidth: 1120, margin: "clamp(40px,7vw,72px) auto 0" }}>
           <div
             data-scroll-scale=""
             style={{
@@ -405,7 +412,7 @@ export default function GatherLanding({
         style={{
           position: "relative",
           zIndex: 1,
-          padding: "170px 6vw",
+          padding: "clamp(96px,16vw,170px) 6vw",
           scrollMarginTop: 60,
           textAlign: "center",
           background: "#f5f5f7",
@@ -443,10 +450,18 @@ export default function GatherLanding({
       {/* ============ SERVICES (BENTO) ============ */}
       <section
         id="services"
-        style={{ position: "relative", zIndex: 1, padding: "140px 6vw", scrollMarginTop: 60 }}
+        style={{
+          position: "relative",
+          zIndex: 1,
+          padding: "clamp(84px,13vw,140px) 6vw",
+          scrollMarginTop: 60,
+        }}
       >
         <div style={{ maxWidth: 1160, margin: "0 auto" }}>
-          <div data-reveal="" style={{ textAlign: "center", marginBottom: 64 }}>
+          <div
+            data-reveal=""
+            style={{ textAlign: "center", marginBottom: "clamp(40px,7vw,64px)" }}
+          >
             <div
               style={{
                 fontSize: 15,
@@ -495,7 +510,7 @@ export default function GatherLanding({
                 gridColumn: "span 3",
                 minHeight: 380,
                 borderRadius: 30,
-                padding: 42,
+                padding: "clamp(28px,5vw,42px)",
                 display: "flex",
                 flexDirection: "column",
                 background: "#1d1d1f",
@@ -553,7 +568,7 @@ export default function GatherLanding({
                 gridColumn: "span 3",
                 minHeight: 380,
                 borderRadius: 30,
-                padding: 42,
+                padding: "clamp(28px,5vw,42px)",
                 display: "flex",
                 flexDirection: "column",
                 background: "#1d1d1f",
@@ -647,13 +662,16 @@ export default function GatherLanding({
         style={{
           position: "relative",
           zIndex: 1,
-          padding: "140px 6vw",
+          padding: "clamp(84px,13vw,140px) 6vw",
           scrollMarginTop: 60,
           background: "#f5f5f7",
         }}
       >
         <div style={{ maxWidth: 1160, margin: "0 auto" }}>
-          <div data-reveal="" style={{ textAlign: "center", marginBottom: 60 }}>
+          <div
+            data-reveal=""
+            style={{ textAlign: "center", marginBottom: "clamp(38px,7vw,60px)" }}
+          >
             <div
               style={{
                 fontSize: 15,
@@ -697,7 +715,7 @@ export default function GatherLanding({
         style={{
           position: "relative",
           zIndex: 1,
-          padding: "170px 6vw",
+          padding: "clamp(96px,16vw,170px) 6vw",
           scrollMarginTop: 60,
           textAlign: "center",
         }}
@@ -718,7 +736,7 @@ export default function GatherLanding({
             style={{
               margin: "0 0 26px",
               fontWeight: 700,
-              fontSize: "clamp(40px,6vw,90px)",
+              fontSize: "clamp(34px,6vw,90px)",
               lineHeight: 1.04,
               letterSpacing: "-.028em",
               color: "#1d1d1f",

@@ -21,6 +21,17 @@ body {
 a {
   color: inherit;
 }
+/* 行動裝置點擊體驗（Web Interface Guidelines）*/
+a,
+button {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+/* 固定 nav 安全區：landscape/瀏海機型不被切到 */
+.gt-nav {
+  padding-left: max(6vw, env(safe-area-inset-left));
+  padding-right: max(6vw, env(safe-area-inset-right));
+}
 ::-webkit-scrollbar {
   width: 11px;
 }
@@ -66,5 +77,9 @@ a {
   /* 給樂數位副標在很窄的螢幕字距縮一點以免擠壓 */
   .gt-nav-sub {
     letter-spacing: 0.18em !important;
+  }
+  /* nav CTA 點擊區加大（≈40px 高，更好按）*/
+  .gt-nav-cta {
+    padding: 9px 18px !important;
   }
 }
