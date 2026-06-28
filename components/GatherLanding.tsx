@@ -287,7 +287,7 @@ export default function GatherLanding({
               marginBottom: 20,
             }}
           >
-            Gather 給樂數位　·　AI 賦能
+            給樂數位　·　AI 賦能
           </div>
           <h1
             data-reveal=""
