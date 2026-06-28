@@ -57,8 +57,10 @@ button {
   .gt-services-grid {
     grid-template-columns: 1fr !important;
   }
+  /* 單欄時讓卡片高度貼齊內容，消除 min-height + 靠底對齊造成的上方空白 */
   .gt-services-grid > * {
     grid-column: auto !important;
+    min-height: 0 !important;
   }
 }
 @media (max-width: 900px) {
