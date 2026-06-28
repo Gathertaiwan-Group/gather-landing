@@ -616,7 +616,7 @@ export default function GatherLanding({
               span={2}
               num="03"
               title="金流／物流串接"
-              desc="串接主流金流與物流，從下單到出貨一氣呵成。"
+              desc="串接主流金、物流，下單到出貨一氣呵成。"
             />
             {/* 04 電子發票串接 */}
             <ServiceCardSmall
