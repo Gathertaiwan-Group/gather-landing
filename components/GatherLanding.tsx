@@ -642,7 +642,7 @@ export default function GatherLanding({
             <ServiceCardWide
               num="07"
               title="SEO／數位行銷顧問"
-              desc="以 AI 驅動流量分析、轉換率提升與行銷自動化，成為品牌長期成長的策略夥伴。"
+              desc="AI 驅動、流量提升與行銷自動化，成為品牌長期成長的策略夥伴。"
             />
           </div>
         </div>
