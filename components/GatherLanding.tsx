@@ -382,26 +382,19 @@ export default function GatherLanding({
               transformOrigin: "center",
             }}
           >
-            <div
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/hero.jpg"
+              alt="給樂數位精選作品 — 客製化網站案例"
               style={{
                 position: "absolute",
                 inset: 0,
-                background:
-                  "repeating-linear-gradient(135deg, rgba(0,0,0,.022) 0 13px, rgba(0,0,0,.045) 13px 26px)",
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                objectPosition: "center",
               }}
             />
-            <span
-              style={{
-                position: "relative",
-                fontFamily: "'Space Mono',monospace",
-                fontSize: 12,
-                letterSpacing: ".2em",
-                color: "#9aa3b0",
-                textTransform: "uppercase",
-              }}
-            >
-              首頁主視覺 / 產品截圖
-            </span>
           </div>
         </div>
       </header>
