@@ -4,12 +4,12 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "給樂數位 Gather — AI 賦能的客製化數位系統",
   description:
-    "給樂數位｜客製化網站建置、AI 賦能的 CRM 系統、金流物流與電子發票串接。高端客製、量身打造。",
+    "給樂數位｜客製化網站建置、AI 賦能的 CRM 系統、金、物流與電子發票串接。高端客製、量身打造。",
   metadataBase: new URL("https://gathertaiwan.com"),
   openGraph: {
     title: "給樂數位 Gather — AI 賦能的客製化數位系統",
     description:
-      "給樂數位｜客製化網站建置、AI 賦能的 CRM 系統、金流物流與電子發票串接。",
+      "給樂數位｜客製化網站建置、AI 賦能的 CRM 系統、金、物流與電子發票串接。",
     type: "website",
     locale: "zh_TW",
     siteName: "給樂數位 Gather",
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "給樂數位 Gather — AI 賦能的客製化數位系統",
     description:
-      "給樂數位｜客製化網站建置、AI 賦能的 CRM 系統、金流物流與電子發票串接。",
+      "給樂數位｜客製化網站建置、AI 賦能的 CRM 系統、金、物流與電子發票串接。",
     images: ["/og.jpg"],
   },
 };
