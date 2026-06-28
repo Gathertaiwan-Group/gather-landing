@@ -26,18 +26,21 @@ create table if not exists contact_submissions (
   created_at  timestamptz default now()
 );
 
--- （選配）部落格
+-- 部落格（hermes agent 透過 /api/blog 上架文章）
 create table if not exists blog_posts (
   id          uuid primary key default gen_random_uuid(),
   slug        text unique not null,
   title       text not null,
   excerpt     text,
-  content     text,
+  content     text,                    -- Markdown
   cover_url   text,
+  category    text,                    -- '數位行銷' | 'AI 賦能'
+  author      text default '給樂數位 Gather',
   published   boolean default false,
   published_at timestamptz,
   created_at  timestamptz default now()
 );
+create index if not exists blog_posts_pub_idx on blog_posts (published, published_at desc);
 
 -- RLS：公開讀已發佈內容；寫入僅限 service_role / 後台登入
 alter table projects enable row level security;

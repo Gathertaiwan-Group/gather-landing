@@ -25,7 +25,17 @@ npm run dev                  # http://localhost:3000
 | `app/api/contact/route.ts` | 聯絡表單 API，寫入 `contact_submissions` |
 | `lib/supabase.ts` | Supabase server / admin client |
 | `lib/projects.ts` | 作品集讀取 + 內建 fallback 清單 |
+| `app/blog/` | 部落格列表 `/blog` 與文章頁 `/blog/[slug]`（Markdown 渲染）|
+| `app/api/blog/route.ts` | 部落格寫入 API（hermes agent 用，Bearer token）|
+| `lib/blog.ts` | 文章讀取（已發佈 + 排程過濾）|
 | `supabase/schema.sql` | 資料表 schema（projects / contact_submissions / blog_posts）|
+
+## 部落格
+
+- 前台：`/blog`（分類篩選：數位行銷 / AI 賦能）、`/blog/[slug]`（Markdown 內文）。
+- 首頁有「最新文章」區（有文章才顯示）。
+- **自動上架**：hermes agent 透過 `POST /api/blog`（`Authorization: Bearer <BLOG_API_TOKEN>`）發文，支援排程（未來 `published_at`）。完整契約見 [`docs/BLOG_API.md`](docs/BLOG_API.md)。
+- 環境變數：`BLOG_API_TOKEN`（agent 金鑰）、`NEXT_PUBLIC_SITE_URL`。
 
 ## Supabase
 

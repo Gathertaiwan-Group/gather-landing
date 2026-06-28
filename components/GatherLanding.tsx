@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, type CSSProperties } from "react";
+import { useEffect, type CSSProperties, type ReactNode } from "react";
 import type { Project } from "@/lib/projects";
 
 /* ============================================================
@@ -39,9 +39,11 @@ const onTextLeave = (e: React.MouseEvent<HTMLElement>) => {
 export default function GatherLanding({
   projects,
   lineUrl,
+  latestPosts,
 }: {
   projects: Project[];
   lineUrl: string;
+  latestPosts?: ReactNode;
 }) {
   useEffect(() => {
     let rafId = 0;
@@ -248,6 +250,15 @@ export default function GatherLanding({
             style={{ fontSize: 14, color: "#1d1d1f", textDecoration: "none", opacity: 0.82 }}
           >
             作品
+          </a>
+          <a
+            href="/blog"
+            className="gt-navlink-text"
+            onMouseEnter={onNavlinkEnter}
+            onMouseLeave={onNavlinkLeave}
+            style={{ fontSize: 14, color: "#1d1d1f", textDecoration: "none", opacity: 0.82 }}
+          >
+            部落格
           </a>
           <a
             href={lineUrl}
@@ -708,6 +719,9 @@ export default function GatherLanding({
           </div>
         </div>
       </section>
+
+      {/* ============ LATEST POSTS (slot from server) ============ */}
+      {latestPosts}
 
       {/* ============ CONTACT ============ */}
       <section
