@@ -30,6 +30,36 @@ function unauthorized() {
   return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
 }
 
+const UA =
+  "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
+
+/** 用 Pexels 依關鍵字抓一張橫向情境照（含攝影師標註）。未設 key 或失敗回 null。 */
+async function fetchPexelsCover(
+  query: string
+): Promise<{ url: string; credit: string; creditUrl: string } | null> {
+  const key = process.env.PEXELS_API_KEY;
+  if (!key || !query.trim()) return null;
+  try {
+    const res = await fetch(
+      `https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&orientation=landscape&per_page=10`,
+      { headers: { Authorization: key, "User-Agent": UA } }
+    );
+    if (!res.ok) return null;
+    const data = (await res.json()) as {
+      photos?: Array<{ src: { original: string }; photographer: string; url: string }>;
+    };
+    const photo = data.photos?.[0];
+    if (!photo) return null;
+    return {
+      url: `${photo.src.original}?auto=compress&cs=tinysrgb&fit=crop&w=1600&h=1000`,
+      credit: `Photo by ${photo.photographer} on Pexels`,
+      creditUrl: photo.url,
+    };
+  } catch {
+    return null;
+  }
+}
+
 // ── 建立文章 ──
 export async function POST(req: Request) {
   if (!authorize(req)) return unauthorized();
@@ -59,11 +89,27 @@ export async function POST(req: Request) {
   }
 
   const baseSlug = body.slug ? slugify(String(body.slug)) : slugify(title);
+
+  // 封面：若未提供 cover_url，依 cover_query（或 title）自動向 Pexels 抓情境圖 + 標註
+  let cover_url = body.cover_url ? String(body.cover_url) : null;
+  let cover_credit = body.cover_credit ? String(body.cover_credit) : null;
+  let cover_credit_url = body.cover_credit_url ? String(body.cover_credit_url) : null;
+  if (!cover_url) {
+    const pic = await fetchPexelsCover(body.cover_query ? String(body.cover_query) : title);
+    if (pic) {
+      cover_url = pic.url;
+      cover_credit = pic.credit;
+      cover_credit_url = pic.creditUrl;
+    }
+  }
+
   const row = {
     title,
     content,
     excerpt: body.excerpt ? String(body.excerpt) : null,
-    cover_url: body.cover_url ? String(body.cover_url) : null,
+    cover_url,
+    cover_credit,
+    cover_credit_url,
     category: body.category ? String(body.category) : null,
     author: body.author ? String(body.author) : "給樂數位 Gather",
     published: body.published === undefined ? true : Boolean(body.published),
@@ -137,7 +183,7 @@ export async function PATCH(req: Request) {
   }
 
   const patch: Record<string, unknown> = {};
-  for (const k of ["title", "content", "excerpt", "cover_url", "category", "author", "published", "published_at"]) {
+  for (const k of ["title", "content", "excerpt", "cover_url", "cover_credit", "cover_credit_url", "category", "author", "published", "published_at"]) {
     if (body[k] !== undefined) patch[k] = body[k];
   }
   if (Object.keys(patch).length === 0) {

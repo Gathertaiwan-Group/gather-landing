@@ -24,7 +24,8 @@ Content-Type: application/json
 | `content` | ✅ | 內文，**Markdown** 格式（支援 GFM：標題/粗體/清單/引用/連結/程式碼/表格/圖片）|
 | `category` | 建議 | `"數位行銷"` 或 `"AI 賦能"`（用於分類篩選）|
 | `excerpt` | 建議 | 摘要（列表卡片與 SEO description 用）|
-| `cover_url` | 選 | 封面圖網址（可放外部 URL，或上傳到 Supabase Storage `blog` bucket 後的公開網址）|
+| `cover_url` | 選 | 封面圖網址。**留空則自動配圖**：系統會用 `cover_query`（或 title）向 Pexels 抓一張情境照並自動標註攝影師 |
+| `cover_query` | 選 | 自動配圖的搜尋關鍵字（建議**英文**，如 `ai customer service`、`ecommerce shopping`）。只有在沒給 `cover_url` 時生效 |
 | `author` | 選 | 預設 `給樂數位 Gather` |
 | `slug` | 選 | 不給則由 title 自動產生（中文會保留；碰撞自動加 `-2`）|
 | `published` | 選 | 預設 `true`。設 `false` = 草稿（不公開）|

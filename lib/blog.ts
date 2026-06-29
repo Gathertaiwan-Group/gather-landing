@@ -7,6 +7,8 @@ export type BlogPost = {
   excerpt: string | null;
   content: string | null;
   cover_url: string | null;
+  cover_credit: string | null;
+  cover_credit_url: string | null;
   category: string | null;
   author: string | null;
   published_at: string | null;
@@ -16,7 +18,7 @@ export type BlogPost = {
 export const BLOG_CATEGORIES = ["數位行銷", "AI 賦能"] as const;
 
 const SELECT_COLS =
-  "id, slug, title, excerpt, content, cover_url, category, author, published_at, created_at";
+  "id, slug, title, excerpt, content, cover_url, cover_credit, cover_credit_url, category, author, published_at, created_at";
 
 /**
  * 已發佈文章列表。

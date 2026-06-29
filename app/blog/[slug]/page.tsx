@@ -83,12 +83,25 @@ export default async function BlogPostPage({
           </div>
 
           {post.cover_url && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={post.cover_url}
-              alt={post.title}
-              style={{ width: "100%", borderRadius: 20, marginBottom: 38, boxShadow: "0 14px 40px rgba(20,40,80,.10)" }}
-            />
+            <figure style={{ margin: "0 0 38px" }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={post.cover_url}
+                alt={post.title}
+                style={{ width: "100%", borderRadius: 20, display: "block", boxShadow: "0 14px 40px rgba(20,40,80,.10)" }}
+              />
+              {post.cover_credit && (
+                <figcaption style={{ marginTop: 10, fontSize: 12, color: "#9aa3b0", textAlign: "right" }}>
+                  {post.cover_credit_url ? (
+                    <a href={post.cover_credit_url} target="_blank" rel="noopener nofollow" style={{ color: "#9aa3b0", textDecoration: "none" }}>
+                      {post.cover_credit}
+                    </a>
+                  ) : (
+                    post.cover_credit
+                  )}
+                </figcaption>
+              )}
+            </figure>
           )}
 
           <div className="prose">
