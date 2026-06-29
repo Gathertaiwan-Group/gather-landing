@@ -116,6 +116,31 @@ button {
   }
 }
 
+/* 首頁「最新文章」：手機改橫向滑動 carousel（桌機維持 inline 3 欄 grid）*/
+@media (max-width: 768px) {
+  .gt-latest-carousel {
+    display: flex !important;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    gap: 16px;
+    scrollbar-width: none;
+    /* 全幅出血：抵銷 section 6vw padding，讓卡片可滑到邊緣 */
+    margin-left: -6vw;
+    margin-right: -6vw;
+    padding-left: 6vw;
+    padding-right: 6vw;
+    scroll-padding-left: 6vw;
+  }
+  .gt-latest-carousel::-webkit-scrollbar {
+    display: none;
+  }
+  .gt-latest-carousel > * {
+    flex: 0 0 85%;
+    scroll-snap-align: start;
+  }
+}
+
 /* ── 文章內文排版（.prose；Apple 風閱讀欄）── */
 .prose {
   font-size: 17px;

@@ -52,7 +52,7 @@ export default function LatestPosts({ posts }: { posts: BlogPost[] }) {
 
         <div
           data-stagger-group=""
-          className="gt-blog-grid"
+          className="gt-latest-carousel"
           style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 26 }}
         >
           {posts.map((p) => (
