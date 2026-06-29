@@ -1,6 +1,5 @@
 import Link from "next/link";
 import type { BlogPost } from "@/lib/blog";
-import { formatDate } from "@/lib/blog";
 
 const BRAND_BLUE = "#1668c2";
 
@@ -52,24 +51,20 @@ export default function BlogCard({ post }: { post: BlogPost }) {
         )}
       </div>
       <div style={{ padding: "22px 24px 26px" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
-          {post.category && (
-            <span
-              style={{
-                fontSize: 12,
-                fontWeight: 600,
-                letterSpacing: ".08em",
-                color: "#ef7d22",
-                textTransform: "uppercase",
-              }}
-            >
-              {post.category}
-            </span>
-          )}
-          <span style={{ fontSize: 12, color: "#9aa3b0", fontFamily: "'Space Mono',monospace" }}>
-            {formatDate(post.published_at ?? post.created_at)}
-          </span>
-        </div>
+        {post.category && (
+          <div
+            style={{
+              fontSize: 12,
+              fontWeight: 600,
+              letterSpacing: ".08em",
+              color: "#ef7d22",
+              textTransform: "uppercase",
+              marginBottom: 12,
+            }}
+          >
+            {post.category}
+          </div>
+        )}
         <h3
           style={{
             margin: "0 0 10px",

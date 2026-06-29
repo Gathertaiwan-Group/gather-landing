@@ -6,7 +6,7 @@ import remarkGfm from "remark-gfm";
 import rehypeSanitize from "rehype-sanitize";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
-import { getPostBySlug, getAllPublishedSlugs, formatDate } from "@/lib/blog";
+import { getPostBySlug, getAllPublishedSlugs } from "@/lib/blog";
 
 export const revalidate = 60;
 export const dynamicParams = true;
@@ -78,12 +78,8 @@ export default async function BlogPostPage({
             {post.title}
           </h1>
 
-          <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 30, fontSize: 14, color: "#86868b" }}>
-            <span>{post.author ?? "給樂數位 Gather"}</span>
-            <span>·</span>
-            <span style={{ fontFamily: "'Space Mono',monospace" }}>
-              {formatDate(post.published_at ?? post.created_at)}
-            </span>
+          <div style={{ marginBottom: 30, fontSize: 14, color: "#86868b" }}>
+            {post.author ?? "給樂數位 Gather"}
           </div>
 
           {post.cover_url && (
