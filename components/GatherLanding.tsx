@@ -588,6 +588,23 @@ export default function GatherLanding({
             這些不是外掛，而是我們為你的系統
             <span style={{ color: "#fff", fontWeight: 600 }}>量身打造、內建其中</span>。
           </p>
+          <div data-reveal="" style={{ textAlign: "center", marginTop: "clamp(28px,5vw,40px)" }}>
+            <a
+              href="/ai"
+              style={{
+                display: "inline-block",
+                fontSize: 17,
+                fontWeight: 600,
+                color: "#1d1d1f",
+                background: "#fff",
+                padding: "14px 34px",
+                borderRadius: 980,
+                textDecoration: "none",
+              }}
+            >
+              ▶ 親自試試這些 AI 能力
+            </a>
+          </div>
         </div>
       </section>
 

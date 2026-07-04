@@ -86,6 +86,42 @@ button {
   }
 }
 
+/* ── AI 賦能實驗室 ── */
+@media (max-width: 768px) {
+  .gt-ai-lab-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+/* AI 工具結果（縮小 .prose 標題尺度、加表格框線）*/
+.gt-ai-result {
+  font-size: 15px;
+  line-height: 1.75;
+}
+.gt-ai-result h2 {
+  font-size: 19px !important;
+  margin: 1.2em 0 0.5em !important;
+}
+.gt-ai-result h3 {
+  font-size: 17px !important;
+  margin: 1em 0 0.4em !important;
+}
+.gt-ai-result table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  display: block;
+  overflow-x: auto;
+}
+.gt-ai-result th,
+.gt-ai-result td {
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  padding: 8px 12px;
+  text-align: left;
+}
+.gt-ai-result th {
+  background: #f5f5f7;
+}
+
 /* ── AI 聊天 widget ── */
 .gt-chat-fab {
   transition: transform 0.2s ease, box-shadow 0.2s ease;

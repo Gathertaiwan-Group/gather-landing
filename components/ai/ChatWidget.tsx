@@ -22,6 +22,13 @@ export default function ChatWidget() {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [msgs, loading, open]);
 
+  // 允許站上其他元件（例如 /ai 的 AI 客服卡）以事件開啟聊天
+  useEffect(() => {
+    const openHandler = () => setOpen(true);
+    window.addEventListener("gather:open-chat", openHandler);
+    return () => window.removeEventListener("gather:open-chat", openHandler);
+  }, []);
+
   async function send(text: string) {
     const q = text.trim();
     if (!q || loading) return;
