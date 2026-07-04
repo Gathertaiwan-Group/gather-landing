@@ -36,6 +36,25 @@ const onTextLeave = (e: React.MouseEvent<HTMLElement>) => {
   e.currentTarget.style.opacity = "1";
 };
 
+// ── AI 賦能能力（深色區）──
+const AI_CAPABILITIES = [
+  { n: "01", t: "客戶分群與流失預測", d: "AI 分析行為，提前標記高風險客戶，主動挽回。", accent: "#5aa0ec" },
+  { n: "02", t: "流程自動化", d: "下單、跟進、客服的重複工作交給 AI，團隊專注在人。", accent: "#f0a564" },
+  { n: "03", t: "行銷內容生成", d: "依品牌語氣自動產出文案、EDM 與社群貼文。", accent: "#5aa0ec" },
+  { n: "04", t: "智慧客服", d: "24 小時回覆常見問題，複雜的才轉真人。", accent: "#f0a564" },
+  { n: "05", t: "數據洞察儀表板", d: "把散落的數據變成看得懂、能行動的建議。", accent: "#5aa0ec" },
+  { n: "06", t: "個人化推薦", d: "依每位客戶推薦最相關的商品或內容，提升客單價。", accent: "#f0a564" },
+];
+
+// ── 差異化對比（一般方案 vs 給樂）──
+const COMPARE_ROWS = [
+  { k: "客製程度", a: "模板套版、改動受限", b: "只能用平台既有功能", g: "100% 量身打造" },
+  { k: "AI 賦能", a: "無", b: "綁定平台功能", g: "AI CRM・自動化・分析內建" },
+  { k: "系統與資料所有權", a: "交付後自己顧", b: "你在租，資料在他們手上", g: "你完全擁有系統與資料" },
+  { k: "一站到位", a: "多半只做前端", b: "功能受平台侷限", g: "網站＋CRM＋金流物流＋電子發票" },
+  { k: "長期成長", a: "靜態、不會進化", b: "看平台臉色", g: "隨品牌持續迭代成長" },
+];
+
 export default function GatherLanding({
   projects,
   lineUrl,
@@ -232,6 +251,15 @@ export default function GatherLanding({
             style={{ fontSize: 14, color: "#1d1d1f", textDecoration: "none", opacity: 0.82 }}
           >
             理念
+          </a>
+          <a
+            href="#ai"
+            className="gt-navlink-text"
+            onMouseEnter={onNavlinkEnter}
+            onMouseLeave={onNavlinkLeave}
+            style={{ fontSize: 14, color: "#1d1d1f", textDecoration: "none", opacity: 0.82 }}
+          >
+            AI 賦能
           </a>
           <a
             href="#services"
@@ -458,6 +486,111 @@ export default function GatherLanding({
         </div>
       </section>
 
+      {/* ============ AI 賦能 (dark highlight) ============ */}
+      <section
+        id="ai"
+        style={{
+          position: "relative",
+          zIndex: 1,
+          padding: "clamp(84px,13vw,140px) 6vw",
+          scrollMarginTop: 60,
+          background: "#1d1d1f",
+          color: "#f5f5f7",
+          overflow: "hidden",
+        }}
+      >
+        <div
+          style={{
+            position: "absolute",
+            top: -120,
+            left: "8%",
+            width: 420,
+            height: 420,
+            borderRadius: "50%",
+            background: "radial-gradient(circle, rgba(22,104,194,.42), transparent 68%)",
+            filter: "blur(10px)",
+            animation: "gtGlow 12s ease-in-out infinite",
+          }}
+        />
+        <div
+          style={{
+            position: "absolute",
+            bottom: -140,
+            right: "6%",
+            width: 460,
+            height: 460,
+            borderRadius: "50%",
+            background: "radial-gradient(circle, rgba(239,125,34,.34), transparent 68%)",
+            filter: "blur(10px)",
+            animation: "gtGlow 15s ease-in-out infinite",
+          }}
+        />
+        <div style={{ maxWidth: 1160, margin: "0 auto", position: "relative" }}>
+          <div data-reveal="" style={{ textAlign: "center", marginBottom: "clamp(40px,7vw,64px)" }}>
+            <div style={{ fontSize: 15, fontWeight: 600, letterSpacing: ".04em", color: "#5aa0ec", marginBottom: 20 }}>
+              Why AI-Powered
+            </div>
+            <h2
+              style={{
+                margin: 0,
+                fontWeight: 700,
+                fontSize: "clamp(32px,5vw,64px)",
+                lineHeight: 1.08,
+                letterSpacing: "-.025em",
+              }}
+            >
+              AI 賦能，不只是加個聊天機器人
+            </h2>
+            <p
+              style={{
+                margin: "22px auto 0",
+                maxWidth: 620,
+                fontSize: 18,
+                lineHeight: 1.7,
+                color: "rgba(245,245,247,.7)",
+              }}
+            >
+              我們把 AI 直接寫進你的系統核心——讓網站不只是好看，而是會分析、會自動化、會替你賺錢。
+            </p>
+          </div>
+
+          <div
+            data-stagger-group=""
+            className="gt-ai-grid"
+            style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 20 }}
+          >
+            {AI_CAPABILITIES.map((c) => (
+              <div
+                data-reveal=""
+                key={c.n}
+                style={{
+                  background: "rgba(255,255,255,.04)",
+                  border: "1px solid rgba(255,255,255,.08)",
+                  borderRadius: 22,
+                  padding: "30px 28px",
+                }}
+              >
+                <div style={{ fontSize: 15, fontWeight: 600, letterSpacing: ".06em", color: c.accent, marginBottom: 14 }}>
+                  {c.n}
+                </div>
+                <h3 style={{ margin: "0 0 10px", fontWeight: 700, fontSize: 21, letterSpacing: "-.015em" }}>
+                  {c.t}
+                </h3>
+                <p style={{ margin: 0, fontSize: 15, lineHeight: 1.7, color: "rgba(245,245,247,.72)" }}>{c.d}</p>
+              </div>
+            ))}
+          </div>
+
+          <p
+            data-reveal=""
+            style={{ textAlign: "center", marginTop: "clamp(34px,6vw,50px)", fontSize: 17, color: "rgba(245,245,247,.85)" }}
+          >
+            這些不是外掛，而是我們為你的系統
+            <span style={{ color: "#fff", fontWeight: 600 }}>量身打造、內建其中</span>。
+          </p>
+        </div>
+      </section>
+
       {/* ============ SERVICES (BENTO) ============ */}
       <section
         id="services"
@@ -663,6 +796,83 @@ export default function GatherLanding({
               title="SEO／數位行銷顧問"
               desc="AI 驅動、流量提升與行銷自動化，成為品牌長期成長的策略夥伴。"
             />
+          </div>
+        </div>
+      </section>
+
+      {/* ============ WHY DIFFERENT (comparison) ============ */}
+      <section
+        id="why"
+        style={{ position: "relative", zIndex: 1, padding: "clamp(84px,13vw,140px) 6vw", scrollMarginTop: 60 }}
+      >
+        <div style={{ maxWidth: 1160, margin: "0 auto" }}>
+          <div data-reveal="" style={{ textAlign: "center", marginBottom: "clamp(38px,7vw,56px)" }}>
+            <div style={{ fontSize: 15, fontWeight: 600, letterSpacing: ".04em", color: BRAND_BLUE, marginBottom: 20 }}>
+              Why Gather
+            </div>
+            <h2
+              style={{
+                margin: 0,
+                fontWeight: 700,
+                fontSize: "clamp(32px,5vw,64px)",
+                lineHeight: 1.08,
+                letterSpacing: "-.025em",
+                color: "#1d1d1f",
+              }}
+            >
+              為什麼給樂跟別人不一樣
+            </h2>
+            <p style={{ margin: "22px auto 0", maxWidth: 600, fontSize: 18, lineHeight: 1.7, color: "#6e6e73" }}>
+              市面上多的是「做個網站」或「租一套系統」。給樂給你的，是一套真正屬於你、還會替你賺錢的數位系統。
+            </p>
+          </div>
+
+          <div data-reveal="" className="gt-compare-wrap">
+            <table className="gt-compare">
+              <thead>
+                <tr>
+                  <th aria-hidden="true"></th>
+                  <th>一般網頁公司</th>
+                  <th>租用型 SaaS 平台</th>
+                  <th className="gt-col-gather">給樂數位</th>
+                </tr>
+              </thead>
+              <tbody>
+                {COMPARE_ROWS.map((r) => (
+                  <tr key={r.k}>
+                    <th scope="row">{r.k}</th>
+                    <td>{r.a}</td>
+                    <td>{r.b}</td>
+                    <td className="gt-col-gather">{r.g}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div data-reveal="" style={{ textAlign: "center", marginTop: "clamp(34px,6vw,50px)" }}>
+            <p style={{ margin: "0 0 22px", fontSize: 19, fontWeight: 600, color: "#1d1d1f" }}>
+              想要一套真正屬於你的數位系統？
+            </p>
+            <a
+              href={lineUrl}
+              target="_blank"
+              rel="noopener"
+              onMouseEnter={onPrimaryEnter}
+              onMouseLeave={onPrimaryLeave}
+              style={{
+                display: "inline-block",
+                fontSize: 17,
+                fontWeight: 500,
+                color: "#fff",
+                background: BRAND_BLUE,
+                padding: "14px 36px",
+                borderRadius: 980,
+                textDecoration: "none",
+              }}
+            >
+              透過 LINE 聊聊你的需求
+            </a>
           </div>
         </div>
       </section>

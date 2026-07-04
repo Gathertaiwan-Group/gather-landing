@@ -97,6 +97,69 @@ button {
   opacity: 0.6;
 }
 
+/* ── AI 賦能能力卡網格 RWD ── */
+@media (max-width: 900px) {
+  .gt-ai-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+@media (max-width: 600px) {
+  .gt-ai-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ── 差異化對比表 ── */
+.gt-compare-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+.gt-compare {
+  width: 100%;
+  min-width: 680px;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 15px;
+}
+.gt-compare th,
+.gt-compare td {
+  padding: 16px 22px;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+.gt-compare thead th {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #6e6e73;
+  border-bottom-color: rgba(0, 0, 0, 0.12);
+}
+.gt-compare tbody th[scope="row"] {
+  font-weight: 600;
+  color: #1d1d1f;
+  white-space: nowrap;
+}
+.gt-compare td {
+  color: #6e6e73;
+}
+.gt-compare .gt-col-gather {
+  background: rgba(22, 104, 194, 0.06);
+  color: #1d1d1f;
+  font-weight: 600;
+}
+.gt-compare thead .gt-col-gather {
+  color: #1668c2;
+  border-top-left-radius: 14px;
+  border-top-right-radius: 14px;
+}
+.gt-compare tbody tr:last-child .gt-col-gather {
+  border-bottom-left-radius: 14px;
+  border-bottom-right-radius: 14px;
+  border-bottom-color: transparent;
+}
+
 /* ── 部落格卡片 hover + 網格 RWD ── */
 .gt-blog-card {
   transition: transform 0.4s cubic-bezier(0.2, 0.7, 0.2, 1), box-shadow 0.4s ease;
