@@ -1,5 +1,8 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import "./globals.css";
+
+const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
 
 export const metadata: Metadata = {
   title: "給樂數位 Gather — AI 賦能的客製化數位系統",
@@ -30,6 +33,9 @@ export const metadata: Metadata = {
       "給樂數位｜客製化網站建置、AI 賦能的 CRM 系統、金、物流與電子發票串接。",
     images: ["/og.jpg"],
   },
+  verification: {
+    google: "Szp_uaVcBcZf9GLF4pVWpiRlujeURWwBOrGsYAVQWXY",
+  },
 };
 
 export const viewport: Viewport = {
@@ -56,7 +62,23 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body>{children}</body>
+      <body>
+        {children}
+        {GA_ID && (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
+              strategy="afterInteractive"
+            />
+            <Script id="ga4" strategy="afterInteractive">
+              {`window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', '${GA_ID}');`}
+            </Script>
+          </>
+        )}
+      </body>
     </html>
   );
 }
