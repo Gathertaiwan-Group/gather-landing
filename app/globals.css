@@ -86,6 +86,48 @@ button {
   }
 }
 
+/* ── AI 聊天 widget ── */
+.gt-chat-fab {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.gt-chat-fab:hover {
+  transform: translateY(-2px) scale(1.05);
+}
+.gt-chat-panel {
+  position: fixed;
+  right: 20px;
+  bottom: 92px;
+  z-index: 60;
+  width: 380px;
+  height: min(560px, calc(100vh - 120px));
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 24px 60px rgba(20, 40, 80, 0.24);
+  animation: gtChatIn 0.28s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+@keyframes gtChatIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (max-width: 480px) {
+  .gt-chat-panel {
+    right: 12px;
+    left: 12px;
+    bottom: 88px;
+    width: auto;
+    height: min(70vh, calc(100vh - 110px));
+  }
+}
+
 /* ── 子頁面 nav/footer 的 CSS hover（SiteHeader/Footer 為 server component）── */
 .gt-navlink-text:hover {
   opacity: 1 !important;
