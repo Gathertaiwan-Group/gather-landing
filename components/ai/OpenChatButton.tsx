@@ -1,11 +1,16 @@
 "use client";
 
+import { trackEvent } from "@/lib/analytics";
+
 const BRAND_BLUE = "#1668c2";
 
 export default function OpenChatButton() {
   return (
     <button
-      onClick={() => window.dispatchEvent(new Event("gather:open-chat"))}
+      onClick={() => {
+        trackEvent("ai_chat_open", { source: "ai_page" });
+        window.dispatchEvent(new Event("gather:open-chat"));
+      }}
       style={{
         alignSelf: "flex-start",
         border: "none",

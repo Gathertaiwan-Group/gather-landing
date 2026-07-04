@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { trackEvent } from "@/lib/analytics";
 
 const BRAND_BLUE = "#1668c2";
 const LINE_URL = "https://line.me/R/ti/p/@864nqqxj";
@@ -24,14 +25,25 @@ export default function ChatWidget() {
 
   // 允許站上其他元件（例如 /ai 的 AI 客服卡）以事件開啟聊天
   useEffect(() => {
-    const openHandler = () => setOpen(true);
+    const openHandler = () => {
+      setOpen(true);
+      trackEvent("ai_chat_open", { source: "event" });
+    };
     window.addEventListener("gather:open-chat", openHandler);
     return () => window.removeEventListener("gather:open-chat", openHandler);
   }, []);
 
+  function toggle() {
+    setOpen((o) => {
+      if (!o) trackEvent("ai_chat_open", { source: "fab" });
+      return !o;
+    });
+  }
+
   async function send(text: string) {
     const q = text.trim();
     if (!q || loading) return;
+    trackEvent("ai_chat_message", { chars: q.length });
     const next = [...msgs, { role: "user" as const, text: q }];
     setMsgs(next);
     setInput("");
@@ -62,7 +74,7 @@ export default function ChatWidget() {
       {/* 浮動按鈕 */}
       <button
         aria-label={open ? "關閉 AI 助理" : "開啟 AI 助理"}
-        onClick={() => setOpen((o) => !o)}
+        onClick={toggle}
         className="gt-chat-fab"
         style={{
           position: "fixed",

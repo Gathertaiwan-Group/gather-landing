@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import ChatWidget from "@/components/ai/ChatWidget";
+import Analytics from "@/components/Analytics";
 import "./globals.css";
 
 const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
@@ -66,6 +67,7 @@ export default function RootLayout({
       <body>
         {children}
         <ChatWidget />
+        <Analytics />
         {GA_ID && (
           <>
             <Script

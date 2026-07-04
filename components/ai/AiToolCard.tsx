@@ -4,6 +4,7 @@ import { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeSanitize from "rehype-sanitize";
+import { trackEvent } from "@/lib/analytics";
 
 const BRAND_BLUE = "#1668c2";
 
@@ -37,8 +38,10 @@ export default function AiToolCard(cfg: ToolConfig) {
         body: JSON.stringify({ tool: cfg.tool, input: value }),
       });
       const data = await res.json();
-      if (data.ok) setResult(data.result);
-      else setError(data.message || "AI 暫時無法回應，請稍後再試。");
+      if (data.ok) {
+        setResult(data.result);
+        trackEvent("ai_tool_use", { tool: cfg.tool });
+      } else setError(data.message || "AI 暫時無法回應，請稍後再試。");
     } catch {
       setError("連線出了點問題，請稍後再試。");
     } finally {
