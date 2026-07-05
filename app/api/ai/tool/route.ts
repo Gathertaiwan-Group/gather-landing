@@ -3,6 +3,7 @@ import { callGemini, rateLimit, clientIp, aiErrorResponse, RateLimitError } from
 import { TOOL_SYSTEM } from "@/lib/aiConfig";
 import { createAdminSupabase } from "@/lib/supabase";
 import { getPublishedPosts } from "@/lib/blog";
+import { logTool } from "@/lib/adminTool";
 
 export const runtime = "nodejs";
 
@@ -85,6 +86,8 @@ export async function POST(req: Request) {
       maxTokens: 900,
       temperature: 0.7,
     });
+    // 非阻塞記錄工具試用（後台潛客訊號用）。
+    void logTool(tool, input, clientIp(req)).catch(() => {});
     return NextResponse.json({ ok: true, result });
   } catch (err) {
     const { status, body: b } = aiErrorResponse(err);

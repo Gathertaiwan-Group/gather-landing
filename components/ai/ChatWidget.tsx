@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import { trackEvent } from "@/lib/analytics";
 
 const BRAND_BLUE = "#1668c2";
@@ -13,11 +14,19 @@ const GREETING =
 const SUGGESTIONS = ["你們提供哪些服務？", "跟一般網頁公司差在哪？", "AI 賦能能幫我做什麼？", "怎麼開始合作？"];
 
 export default function ChatWidget() {
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [msgs, setMsgs] = useState<Msg[]>([{ role: "model", text: GREETING }]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const sessionIdRef = useRef<string>("");
+
+  // 每次掛載產生一個 session id，隨每則訊息送給後端做對話紀錄（後台可看）。
+  useEffect(() => {
+    sessionIdRef.current =
+      globalThis.crypto?.randomUUID?.() ?? `s_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+  }, []);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
@@ -52,7 +61,7 @@ export default function ChatWidget() {
       const res = await fetch("/api/ai/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: next }),
+        body: JSON.stringify({ messages: next, sessionId: sessionIdRef.current }),
       });
       const data = await res.json();
       setMsgs((m) => [
@@ -68,6 +77,9 @@ export default function ChatWidget() {
       setLoading(false);
     }
   }
+
+  // 後台頁面不顯示對外的 AI 客服浮動按鈕
+  if (pathname?.startsWith("/admin")) return null;
 
   return (
     <>

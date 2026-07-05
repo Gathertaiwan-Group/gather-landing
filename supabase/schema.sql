@@ -68,3 +68,60 @@ insert into projects (category, name, url, sort_order) values
   ('部落客', 'Three of Us', 'https://loveccdd.com/', 5),
   ('線上課程網站', '台灣環境生態護育產業工會', 'https://beunion.tw/', 6)
 on conflict do nothing;
+
+-- ─────────────────────────────────────────────────────────────
+-- 後台 (Admin Dashboard) — /admin
+-- 三張表全部啟用 RLS 且「不建任何 public policy」→ 只有 service_role
+-- （createAdminSupabase）能存取；anon / 瀏覽器一律讀不到。
+-- ─────────────────────────────────────────────────────────────
+
+-- AI 客服對話紀錄：以 session_id 為單位 upsert，一段對話一列
+create table if not exists ai_chat_logs (
+  id             uuid primary key default gen_random_uuid(),
+  session_id     text unique not null,               -- ChatWidget crypto.randomUUID()
+  messages       jsonb not null default '[]'::jsonb, -- 完整對話 [{role,text}]
+  message_count  int  not null default 0,
+  first_question text,                               -- 首則使用者提問（清單預覽）
+  last_reply     text,                               -- 最新 AI 回覆（清單預覽）
+  user_ip        text,
+  user_agent     text,
+  created_at     timestamptz not null default now(),
+  updated_at     timestamptz not null default now()
+);
+create unique index if not exists ai_chat_logs_session_idx on ai_chat_logs (session_id);
+create index if not exists ai_chat_logs_updated_idx on ai_chat_logs (updated_at desc);
+
+-- AI 實驗室工具試用紀錄（潛客訊號）
+create table if not exists ai_tool_logs (
+  id         uuid primary key default gen_random_uuid(),
+  tool       text not null,          -- copy | automation | segment | insight | recommend
+  input      text,
+  user_ip    text,
+  created_at timestamptz not null default now()
+);
+create index if not exists ai_tool_logs_created_idx on ai_tool_logs (created_at desc);
+
+-- 案件管理（手動維護的案件看板）
+create table if not exists client_cases (
+  id            uuid primary key default gen_random_uuid(),
+  title         text not null,                 -- 案件名稱
+  client_name   text not null,                 -- 客戶/公司
+  contact_email text,
+  contact_phone text,
+  contact_line  text,
+  source        text not null default 'manual', -- line | ai_chat | referral | manual
+  status        text not null default '洽談中',  -- 洽談中|報價中|進行中|已完成|已結案|擱置（app 端 allowlist）
+  budget        numeric,
+  currency      text default 'TWD',
+  notes         text,
+  session_id    text,                          -- 若由某段對話建立，回連 ai_chat_logs.session_id
+  created_at    timestamptz not null default now(),
+  updated_at    timestamptz not null default now()
+);
+create index if not exists client_cases_status_idx  on client_cases (status);
+create index if not exists client_cases_updated_idx on client_cases (updated_at desc);
+
+-- RLS：全部啟用、不建任何 public policy（只有 service_role 能存取）
+alter table ai_chat_logs enable row level security;
+alter table ai_tool_logs enable row level security;
+alter table client_cases  enable row level security;

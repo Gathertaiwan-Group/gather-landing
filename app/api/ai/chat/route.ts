@@ -1,13 +1,14 @@
 import { NextResponse } from "next/server";
 import { callGeminiChat, rateLimit, clientIp, aiErrorResponse, type ChatTurn } from "@/lib/gemini";
 import { CHAT_SYSTEM } from "@/lib/aiConfig";
+import { logChat } from "@/lib/adminChat";
 
 export const runtime = "nodejs";
 
 type InMsg = { role?: string; text?: string };
 
 export async function POST(req: Request) {
-  let body: { messages?: InMsg[] };
+  let body: { messages?: InMsg[]; sessionId?: string };
   try {
     body = await req.json();
   } catch {
@@ -33,6 +34,9 @@ export async function POST(req: Request) {
 
   try {
     const reply = await callGeminiChat(turns, { system: CHAT_SYSTEM, maxTokens: 600 });
+    // 非阻塞記錄整段對話（後台諮詢紀錄用）；失敗也不影響回覆。
+    const sessionId = typeof body.sessionId === "string" ? body.sessionId.slice(0, 64) : "";
+    void logChat(sessionId, turns, reply, clientIp(req), req.headers.get("user-agent")).catch(() => {});
     return NextResponse.json({ ok: true, reply });
   } catch (err) {
     const { status, body: b } = aiErrorResponse(err);
