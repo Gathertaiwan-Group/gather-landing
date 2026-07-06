@@ -8,7 +8,16 @@ export const revalidate = 0;
 export default async function CasesPage({
   searchParams,
 }: {
-  searchParams: { new?: string; session?: string; title?: string; note?: string };
+  searchParams: {
+    new?: string;
+    session?: string;
+    title?: string;
+    note?: string;
+    name?: string;
+    email?: string;
+    phone?: string;
+    line?: string;
+  };
 }) {
   const cases = await getCases();
 
@@ -20,6 +29,10 @@ export default async function CasesPage({
           notes: searchParams.note ?? "",
           source: "ai_chat",
           session_id: searchParams.session ?? "",
+          client_name: searchParams.name ?? "",
+          contact_email: searchParams.email ?? "",
+          contact_phone: searchParams.phone ?? "",
+          contact_line: searchParams.line ?? "",
         }
       : undefined;
 

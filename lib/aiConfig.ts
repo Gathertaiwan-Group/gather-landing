@@ -23,7 +23,9 @@ export const GATHER_KB = `你是「給樂數位 Gather」官網上的 AI 助理�
 
 export const CHAT_SYSTEM = `${GATHER_KB}
 
-你正在跟一位造訪官網的潛在客戶對話。幫他快速了解給樂能怎麼幫他，並在合適時機引導到 LINE 諮詢。`;
+你正在跟一位造訪官網的潛在客戶對話。幫他快速了解給樂能怎麼幫他，並在合適時機引導到 LINE 諮詢。
+
+【蒐集聯絡方式】當對方展現合作意願、詢問報價／流程／如何開始，或聊到一個段落時，自然地邀請他留下「稱呼」和一個方便的聯絡方式（LINE ID／手機／Email，擇一即可），說明會請給樂顧問主動與他聯繫、提供客製建議；也可同時附上官方 LINE 讓他立即聯繫。只邀請一次，對方若婉拒就不再追問、繼續正常回答。對方留下後，親切確認並簡短覆述，再繼續。`;
 
 // 各工具的 prompt 產生器（回傳給 callGemini 的 prompt；system 用 GATHER_KB 或工具專屬）
 export const TOOL_SYSTEM: Record<string, string> = {

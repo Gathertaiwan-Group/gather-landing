@@ -8,7 +8,16 @@ import CaseFormModal from "./CaseFormModal";
 
 const BRAND_BLUE = "#1668c2";
 
-type Prefill = { title: string; notes: string; source: string; session_id: string };
+type Prefill = {
+  title: string;
+  notes: string;
+  source: string;
+  session_id: string;
+  client_name: string;
+  contact_email: string;
+  contact_phone: string;
+  contact_line: string;
+};
 
 type Props = {
   cases: ClientCase[];
@@ -42,6 +51,10 @@ export default function CaseTable({ cases, prefill }: Props) {
         notes: prefill.notes,
         source: prefill.source,
         session_id: prefill.session_id || null,
+        client_name: prefill.client_name || "",
+        contact_email: prefill.contact_email || null,
+        contact_phone: prefill.contact_phone || null,
+        contact_line: prefill.contact_line || null,
       }
     : null;
 

@@ -5,6 +5,7 @@ import { useState } from "react";
 import type { ChatLog } from "@/lib/adminChat";
 
 const BRAND_BLUE = "#1668c2";
+const GREEN = "#1f7a44";
 
 type Props = { log: ChatLog };
 
@@ -24,18 +25,47 @@ function buildTranscript(log: ChatLog): string {
   return text.length > 1500 ? text.slice(0, 1500) + "…" : text;
 }
 
-/** 一段 AI 客服對話：可摺疊，展開顯示聊天泡泡，並可一鍵「建立案件」。 */
+/** 收合列上的聯絡摘要（姓名 · 電話 · LINE · Email）。 */
+function contactLine(log: ChatLog): string {
+  return [
+    log.contact_name,
+    log.contact_phone,
+    log.contact_line ? `LINE ${log.contact_line}` : null,
+    log.contact_email,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+}
+
+const contactPill: React.CSSProperties = {
+  display: "inline-block",
+  flexShrink: 0,
+  fontSize: 11.5,
+  fontWeight: 700,
+  color: GREEN,
+  background: "#dcf3e5",
+  borderRadius: 980,
+  padding: "2px 9px",
+};
+
+/** 一段 AI 客服對話：可摺疊；有留聯絡則加標記＋聯絡卡，並可一鍵「建立案件」（已帶入聯絡）。 */
 export default function TranscriptRow({ log }: Props) {
   const [open, setOpen] = useState(false);
 
   const question = log.first_question?.trim() || "（無提問內容）";
+  const hasContact = log.has_contact;
+  const caseTitle = (log.summary || log.first_question || "").slice(0, 60);
 
-  // /admin/cases 預填連結：帶 session / 標題（前 60 字）/ 備註（整段對話）
+  // /admin/cases 預填連結：帶 session / 標題 / 備註（摘要＋整段對話）/ 聯絡資訊
   const caseHref =
     `/admin/cases?new=1` +
     `&session=${encodeURIComponent(log.session_id)}` +
-    `&title=${encodeURIComponent((log.first_question || "").slice(0, 60))}` +
-    `&note=${encodeURIComponent(buildTranscript(log))}`;
+    `&title=${encodeURIComponent(caseTitle)}` +
+    `&note=${encodeURIComponent((log.summary ? `需求摘要：${log.summary}\n\n` : "") + buildTranscript(log))}` +
+    `&name=${encodeURIComponent(log.contact_name || "")}` +
+    `&email=${encodeURIComponent(log.contact_email || "")}` +
+    `&phone=${encodeURIComponent(log.contact_phone || "")}` +
+    `&line=${encodeURIComponent(log.contact_line || "")}`;
 
   return (
     <div className="gt-admin-card" style={{ padding: 0, overflow: "hidden", marginBottom: 14 }}>
@@ -57,29 +87,87 @@ export default function TranscriptRow({ log }: Props) {
       >
         <span style={{ fontSize: 15, color: "#86868b", marginTop: 2, flexShrink: 0 }}>{open ? "▾" : "▸"}</span>
         <span style={{ flex: 1, minWidth: 0 }}>
-          <span
-            style={{
-              display: "block",
-              fontSize: 15.5,
-              fontWeight: 600,
-              color: "#1d1d1f",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
-            }}
-          >
-            {question}
+          <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            {hasContact && <span style={contactPill}>📇 已留聯絡</span>}
+            <span
+              style={{
+                flex: 1,
+                minWidth: 0,
+                fontSize: 15.5,
+                fontWeight: 600,
+                color: "#1d1d1f",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {question}
+            </span>
           </span>
           <span style={{ display: "block", fontSize: 12.5, color: "#86868b", marginTop: 4 }}>
             {log.message_count} 則 · {formatDateTime(log.updated_at)}
             {log.user_ip ? ` · ${log.user_ip}` : ""}
           </span>
+          {hasContact && contactLine(log) && (
+            <span
+              style={{
+                display: "block",
+                fontSize: 12.5,
+                color: GREEN,
+                fontWeight: 600,
+                marginTop: 3,
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+            >
+              📇 {contactLine(log)}
+            </span>
+          )}
         </span>
       </button>
 
       {/* 展開內容 */}
       {open && (
         <div style={{ borderTop: "1px solid rgba(0,0,0,.07)" }}>
+          {/* 聯絡資訊卡 */}
+          {hasContact && (
+            <div style={{ padding: "14px 22px", background: "#eefaf1", borderBottom: "1px solid rgba(0,0,0,.06)" }}>
+              <div style={{ fontSize: 12.5, fontWeight: 700, color: GREEN, letterSpacing: ".04em", marginBottom: 8 }}>
+                📇 客人聯絡資訊（AI 從對話中辨識）
+              </div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "6px 22px", fontSize: 14, color: "#1d1d1f" }}>
+                {log.contact_name && (
+                  <span>
+                    <b>稱呼</b>：{log.contact_name}
+                  </span>
+                )}
+                {log.contact_phone && (
+                  <span>
+                    <b>電話</b>：{log.contact_phone}
+                  </span>
+                )}
+                {log.contact_line && (
+                  <span>
+                    <b>LINE</b>：{log.contact_line}
+                  </span>
+                )}
+                {log.contact_email && (
+                  <span>
+                    <b>Email</b>：{log.contact_email}
+                  </span>
+                )}
+              </div>
+              {log.summary && (
+                <div style={{ marginTop: 10, fontSize: 14, color: "#1d1d1f" }}>
+                  <b>需求</b>：{log.summary}
+                </div>
+              )}
+              {log.intent && <div style={{ marginTop: 4, fontSize: 13, color: "#6e6e73" }}>意向：{log.intent}</div>}
+            </div>
+          )}
+
+          {/* 對話泡泡 */}
           <div style={{ padding: "16px 22px", background: "#f5f5f7" }}>
             {log.messages.map((m, i) => (
               <div

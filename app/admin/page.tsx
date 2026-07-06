@@ -1,7 +1,7 @@
 import Link from "next/link";
 import AdminHeader from "@/components/admin/AdminHeader";
 import StatCard from "@/components/admin/StatCard";
-import { getChatLogs } from "@/lib/adminChat";
+import { getChatLogs, getContactCount } from "@/lib/adminChat";
 import { getCases, STATUS_COLORS } from "@/lib/adminCases";
 import { getToolCountSince } from "@/lib/adminTool";
 
@@ -36,10 +36,11 @@ function StatusChip({ status }: { status: string }) {
 }
 
 export default async function AdminOverviewPage() {
-  const [logs, cases, toolCount] = await Promise.all([
+  const [logs, cases, toolCount, contactCount] = await Promise.all([
     getChatLogs(100),
     getCases(),
     getToolCountSince(7),
+    getContactCount(),
   ]);
 
   const inProgress = cases.filter((c) => c.status === "進行中").length;
@@ -62,6 +63,7 @@ export default async function AdminOverviewPage() {
           }}
         >
           <StatCard label="諮詢對話數" value={logs.length} href="/admin/inquiries" />
+          <StatCard label="留下聯絡" value={contactCount} href="/admin/inquiries" hint="客人有留聯絡方式" />
           <StatCard label="進行中案件" value={inProgress} href="/admin/cases" />
           <StatCard label="總案件數" value={cases.length} href="/admin/cases" />
           <StatCard label="本週 AI 工具試用" value={toolCount} hint="近 7 天" />
@@ -105,6 +107,7 @@ export default async function AdminOverviewPage() {
                         whiteSpace: "nowrap",
                       }}
                     >
+                      {log.has_contact ? "📇 " : ""}
                       {log.first_question?.trim() || "（無提問內容）"}
                     </span>
                     <span style={{ fontSize: 12.5, color: "#86868b", whiteSpace: "nowrap", flexShrink: 0 }}>

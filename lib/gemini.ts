@@ -104,6 +104,44 @@ export async function callGeminiChat(turns: ChatTurn[], opts: GeminiOpts = {}): 
   return text;
 }
 
+/** 呼叫 Gemini 並要求回傳符合 schema 的 JSON（結構化萃取用）。任何錯誤回 null，不 throw。 */
+export async function callGeminiJSON<T = unknown>(
+  prompt: string,
+  opts: { system?: string; schema: Record<string, unknown>; maxTokens?: number }
+): Promise<T | null> {
+  const key = process.env.GEMINI_API_KEY;
+  if (!key) return null;
+
+  const body: Record<string, unknown> = {
+    contents: [{ role: "user", parts: [{ text: prompt }] }],
+    generationConfig: {
+      temperature: 0.1,
+      maxOutputTokens: opts.maxTokens ?? 400,
+      thinkingConfig: { thinkingBudget: 0 },
+      responseMimeType: "application/json",
+      responseSchema: opts.schema,
+    },
+  };
+  if (opts.system) body.systemInstruction = { parts: [{ text: opts.system }] };
+
+  try {
+    const res = await fetch(`${ENDPOINT}?key=${key}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) return null;
+    const data = (await res.json()) as {
+      candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
+    };
+    const text = data.candidates?.[0]?.content?.parts?.map((p) => p.text ?? "").join("").trim();
+    if (!text) return null;
+    return JSON.parse(text) as T;
+  } catch {
+    return null;
+  }
+}
+
 /** 統一的 API route 錯誤回應（友善訊息 + 導 LINE）。 */
 export function aiErrorResponse(err: unknown): { status: number; body: Record<string, unknown> } {
   const line = process.env.NEXT_PUBLIC_LINE_URL ?? "https://line.me/R/ti/p/@864nqqxj";

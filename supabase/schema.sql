@@ -85,11 +85,21 @@ create table if not exists ai_chat_logs (
   last_reply     text,                               -- 最新 AI 回覆（清單預覽）
   user_ip        text,
   user_agent     text,
+  -- AI 從對話中萃取的聯絡資訊與需求（自然引導＋Gemini 結構化萃取）
+  contact_name   text,
+  contact_phone  text,
+  contact_email  text,
+  contact_line   text,
+  summary        text,                              -- 一句需求摘要
+  intent         text,                              -- 意向（詢價／合作意向／一般諮詢…）
+  has_contact    boolean generated always as
+                   (coalesce(contact_name, contact_phone, contact_email, contact_line) is not null) stored,
   created_at     timestamptz not null default now(),
   updated_at     timestamptz not null default now()
 );
 create unique index if not exists ai_chat_logs_session_idx on ai_chat_logs (session_id);
 create index if not exists ai_chat_logs_updated_idx on ai_chat_logs (updated_at desc);
+create index if not exists ai_chat_logs_contact_idx on ai_chat_logs (has_contact, updated_at desc);
 
 -- AI 實驗室工具試用紀錄（潛客訊號）
 create table if not exists ai_tool_logs (

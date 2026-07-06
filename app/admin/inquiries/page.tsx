@@ -16,7 +16,7 @@ export default async function InquiriesPage() {
           客人諮詢對話紀錄
         </h1>
         <p style={{ fontSize: 14.5, color: "#86868b", margin: "0 0 24px", lineHeight: 1.6 }}>
-          這裡是網站 AI 客服的對話紀錄，從上線起累積。LINE 諮詢不在此。
+          這裡是網站 AI 客服的對話紀錄，從上線起累積。📇 標記＝客人已在對話中留下聯絡方式（自動置頂）；LINE 諮詢不在此。
         </p>
 
         {logs.length === 0 ? (
