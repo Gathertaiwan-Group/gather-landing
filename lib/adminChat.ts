@@ -1,6 +1,7 @@
 import { createAdminSupabase } from "@/lib/supabase";
 import type { ChatTurn } from "@/lib/gemini";
 import { extractLead, hasContactSignal } from "@/lib/leadExtract";
+import { sendInquiryNotification } from "@/lib/resend";
 
 export type ChatMsg = { role: "user" | "model"; text: string };
 
@@ -84,6 +85,30 @@ export async function logChat(
         // 只更新有值欄位 → 萃取到 null 不會覆蓋先前已抓到的聯絡資訊
         if (Object.keys(patch).length > 0) {
           await supabase.from("ai_chat_logs").update(patch).eq("session_id", sessionId);
+
+          const hasContact = !!(
+            lead.contact_name || lead.contact_phone || lead.contact_email || lead.contact_line
+          );
+          if (hasContact) {
+            // 第一次抓到聯絡才寄一次通知：以 notified 旗標原子 claim，避免同段對話重複寄。
+            const { data: claim } = await supabase
+              .from("ai_chat_logs")
+              .update({ notified: true })
+              .eq("session_id", sessionId)
+              .eq("notified", false)
+              .select("id")
+              .maybeSingle();
+            if (claim) {
+              await sendInquiryNotification({
+                name: lead.contact_name || "AI 客服訪客",
+                email: lead.contact_email,
+                phone: lead.contact_phone,
+                line: lead.contact_line,
+                summary: lead.summary,
+                source: "ai_chat",
+              });
+            }
+          }
         }
       }
     }

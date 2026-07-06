@@ -1,7 +1,6 @@
 import Link from "next/link";
 
 const BRAND_BLUE = "#1668c2";
-const LINE_URL = process.env.NEXT_PUBLIC_LINE_URL ?? "https://line.me/R/ti/p/@864nqqxj";
 
 /** 部落格等子頁面的品牌導覽列（與首頁 nav 視覺一致；hover 見 globals.css）。 */
 export default function SiteHeader() {
@@ -46,9 +45,7 @@ export default function SiteHeader() {
           部落格
         </Link>
         <a
-          href={LINE_URL}
-          target="_blank"
-          rel="noopener"
+          href="/#contact"
           className="gt-nav-cta"
           style={{
             fontSize: 14,

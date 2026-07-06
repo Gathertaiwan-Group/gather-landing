@@ -144,15 +144,14 @@ export async function callGeminiJSON<T = unknown>(
 
 /** 統一的 API route 錯誤回應（友善訊息 + 導 LINE）。 */
 export function aiErrorResponse(err: unknown): { status: number; body: Record<string, unknown> } {
-  const line = process.env.NEXT_PUBLIC_LINE_URL ?? "https://line.me/R/ti/p/@864nqqxj";
   if (err instanceof RateLimitError) {
     return {
       status: 429,
-      body: { ok: false, error: "rate_limited", message: "今天的 AI 試用次數用得差不多了，歡迎直接透過 LINE 與我們聊聊。", line },
+      body: { ok: false, error: "rate_limited", message: "今天的 AI 試用次數用得差不多了，歡迎在官網下方填聯絡表單，我們會盡快與您聯繫。" },
     };
   }
   return {
     status: 502,
-    body: { ok: false, error: "ai_error", message: "AI 暫時忙線中，請稍後再試，或直接用 LINE 聯絡我們。", line },
+    body: { ok: false, error: "ai_error", message: "AI 暫時忙線中，請稍後再試，或在官網下方填聯絡表單與我們聯繫。" },
   };
 }

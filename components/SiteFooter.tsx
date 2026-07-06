@@ -1,7 +1,6 @@
 import Link from "next/link";
 
 const BRAND_BLUE = "#1668c2";
-const LINE_URL = process.env.NEXT_PUBLIC_LINE_URL ?? "https://line.me/R/ti/p/@864nqqxj";
 
 /** 子頁面共用品牌頁尾（與首頁 footer 一致）。 */
 export default function SiteFooter() {
@@ -36,13 +35,11 @@ export default function SiteFooter() {
           給樂行銷有限公司　·　Copyright © 2026 All rights reserved.
         </div>
         <a
-          href={LINE_URL}
-          target="_blank"
-          rel="noopener"
+          href="/#contact"
           className="btn-text"
           style={{ fontSize: 13, color: BRAND_BLUE, textDecoration: "none" }}
         >
-          LINE 諮詢 ›
+          聯絡我們 ›
         </a>
       </div>
     </footer>

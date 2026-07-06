@@ -4,6 +4,7 @@ import StatCard from "@/components/admin/StatCard";
 import { getChatLogs, getContactCount } from "@/lib/adminChat";
 import { getCases, STATUS_COLORS } from "@/lib/adminCases";
 import { getToolCountSince } from "@/lib/adminTool";
+import { getContactSubmissionCount } from "@/lib/adminContact";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -36,11 +37,12 @@ function StatusChip({ status }: { status: string }) {
 }
 
 export default async function AdminOverviewPage() {
-  const [logs, cases, toolCount, contactCount] = await Promise.all([
+  const [logs, cases, toolCount, contactCount, formCount] = await Promise.all([
     getChatLogs(100),
     getCases(),
     getToolCountSince(7),
     getContactCount(),
+    getContactSubmissionCount(),
   ]);
 
   const inProgress = cases.filter((c) => c.status === "進行中").length;
@@ -62,8 +64,9 @@ export default async function AdminOverviewPage() {
             marginBottom: 28,
           }}
         >
+          <StatCard label="聯絡表單" value={formCount} href="/admin/inquiries" hint="網站表單送出" />
           <StatCard label="諮詢對話數" value={logs.length} href="/admin/inquiries" />
-          <StatCard label="留下聯絡" value={contactCount} href="/admin/inquiries" hint="客人有留聯絡方式" />
+          <StatCard label="留下聯絡" value={contactCount} href="/admin/inquiries" hint="AI 對話留聯絡" />
           <StatCard label="進行中案件" value={inProgress} href="/admin/cases" />
           <StatCard label="總案件數" value={cases.length} href="/admin/cases" />
           <StatCard label="本週 AI 工具試用" value={toolCount} hint="近 7 天" />

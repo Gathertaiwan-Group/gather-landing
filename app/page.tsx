@@ -11,15 +11,12 @@ export default async function Page() {
     getProjects(),
     getPublishedPosts({ limit: 3 }),
   ]);
-  const lineUrl =
-    process.env.NEXT_PUBLIC_LINE_URL ?? "https://line.me/R/ti/p/@864nqqxj";
 
   // LatestPosts 為 server component，以 slot 傳入 client 的 GatherLanding，
   // 避免把 Supabase 資料層打包進前端 bundle。
   return (
     <GatherLanding
       projects={projects}
-      lineUrl={lineUrl}
       latestPosts={posts.length ? <LatestPosts posts={posts} /> : null}
     />
   );

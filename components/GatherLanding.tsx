@@ -2,6 +2,7 @@
 
 import { useEffect, type CSSProperties, type ReactNode } from "react";
 import type { Project } from "@/lib/projects";
+import ContactForm from "@/components/ContactForm";
 
 /* ============================================================
    給樂數位 Gather 官網 — 由 reference-build/index.html 逐項移植。
@@ -57,11 +58,9 @@ const COMPARE_ROWS = [
 
 export default function GatherLanding({
   projects,
-  lineUrl,
   latestPosts,
 }: {
   projects: Project[];
-  lineUrl: string;
   latestPosts?: ReactNode;
 }) {
   useEffect(() => {
@@ -289,9 +288,7 @@ export default function GatherLanding({
             部落格
           </a>
           <a
-            href={lineUrl}
-            target="_blank"
-            rel="noopener"
+            href="/#contact"
             className="gt-nav-cta"
             onMouseEnter={onPrimaryEnter}
             onMouseLeave={onPrimaryLeave}
@@ -385,9 +382,7 @@ export default function GatherLanding({
             }}
           >
             <a
-              href={lineUrl}
-              target="_blank"
-              rel="noopener"
+              href="/#contact"
               onMouseEnter={onPrimaryEnter}
               onMouseLeave={onPrimaryLeave}
               style={{
@@ -872,9 +867,7 @@ export default function GatherLanding({
               想要一套真正屬於你的數位系統？
             </p>
             <a
-              href={lineUrl}
-              target="_blank"
-              rel="noopener"
+              href="/#contact"
               onMouseEnter={onPrimaryEnter}
               onMouseLeave={onPrimaryLeave}
               style={{
@@ -888,7 +881,7 @@ export default function GatherLanding({
                 textDecoration: "none",
               }}
             >
-              透過 LINE 聊聊你的需求
+              聊聊你的需求
             </a>
           </div>
         </div>
@@ -996,25 +989,9 @@ export default function GatherLanding({
           >
             不論是全新官網、系統整合，或既有網站的優化升級——歡迎直接與我們聊聊你的構想。
           </p>
-          <a
-            href={lineUrl}
-            target="_blank"
-            rel="noopener"
-            onMouseEnter={onPrimaryEnter}
-            onMouseLeave={onPrimaryLeave}
-            style={{
-              display: "inline-block",
-              fontSize: 17,
-              fontWeight: 500,
-              color: "#fff",
-              background: BRAND_BLUE,
-              padding: "16px 44px",
-              borderRadius: 980,
-              textDecoration: "none",
-            }}
-          >
-            透過 LINE 聯絡我們
-          </a>
+          <div style={{ marginTop: 8 }}>
+            <ContactForm />
+          </div>
         </div>
       </section>
 
@@ -1064,14 +1041,12 @@ export default function GatherLanding({
             給樂行銷有限公司　·　Copyright © 2026 All rights reserved.
           </div>
           <a
-            href={lineUrl}
-            target="_blank"
-            rel="noopener"
+            href="/#contact"
             onMouseEnter={onTextEnter}
             onMouseLeave={onTextLeave}
             style={{ fontSize: 13, color: BRAND_BLUE, textDecoration: "none" }}
           >
-            LINE 諮詢 ›
+            聯絡我們 ›
           </a>
         </div>
       </footer>

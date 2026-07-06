@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createAdminSupabase } from "@/lib/supabase";
+import { sendInquiryNotification } from "@/lib/resend";
 
 export const runtime = "nodejs";
 
@@ -31,7 +32,7 @@ export async function POST(req: Request) {
   }
 
   const supabase = createAdminSupabase();
-  // Supabase 尚未啟用 / 未設定 key：回傳 fallback，前端引導改用 LINE。
+  // Supabase 尚未啟用 / 未設定 key：回傳 fallback，前端顯示錯誤訊息。
   if (!supabase) {
     return NextResponse.json(
       { ok: false, fallback: true, error: "supabase_not_configured" },
@@ -39,19 +40,28 @@ export async function POST(req: Request) {
     );
   }
 
-  const { error } = await supabase.from("contact_submissions").insert({
-    name,
-    email: email || null,
-    phone: phone || null,
-    message,
-    source: "website",
-  });
+  const { data, error } = await supabase
+    .from("contact_submissions")
+    .insert({
+      name,
+      email: email || null,
+      phone: phone || null,
+      message,
+      source: "website",
+    })
+    .select("id")
+    .single();
 
-  if (error) {
-    return NextResponse.json(
-      { ok: false, error: "db_error" },
-      { status: 500 }
-    );
+  if (error || !data) {
+    return NextResponse.json({ ok: false, error: "db_error" }, { status: 500 });
+  }
+
+  // 寄「新諮詢通知」給老闆（env 未設則略過）；成功就標記 notified。失敗不影響送出。
+  try {
+    const sent = await sendInquiryNotification({ name, email, phone, message, source: "website" });
+    if (sent) await supabase.from("contact_submissions").update({ notified: true }).eq("id", data.id);
+  } catch {
+    /* 通知失敗不影響表單送出 */
   }
 
   return NextResponse.json({ ok: true });

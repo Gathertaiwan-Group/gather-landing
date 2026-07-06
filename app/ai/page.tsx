@@ -129,8 +129,8 @@ export default function AiLabPage() {
 
             <p style={{ textAlign: "center", marginTop: "clamp(34px,6vw,50px)", fontSize: 15, color: "#86868b" }}>
               喜歡這些能力嗎？這些都能為你的系統量身打造、內建其中。
-              <a href="https://line.me/R/ti/p/@864nqqxj" target="_blank" rel="noopener" style={{ color: BRAND_BLUE, marginLeft: 6, textDecoration: "none", fontWeight: 500 }}>
-                透過 LINE 聊聊 ›
+              <a href="/#contact" style={{ color: BRAND_BLUE, marginLeft: 6, textDecoration: "none", fontWeight: 500 }}>
+                聊聊你的需求 ›
               </a>
             </p>
           </div>

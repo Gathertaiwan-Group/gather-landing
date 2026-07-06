@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import { trackEvent } from "@/lib/analytics";
 
 const BRAND_BLUE = "#1668c2";
-const LINE_URL = "https://line.me/R/ti/p/@864nqqxj";
 
 type Msg = { role: "user" | "model"; text: string };
 
@@ -72,7 +71,7 @@ export default function ChatWidget() {
         },
       ]);
     } catch {
-      setMsgs((m) => [...m, { role: "model", text: "連線出了點問題，請稍後再試，或用 LINE 聯絡我們。" }]);
+      setMsgs((m) => [...m, { role: "model", text: "連線出了點問題，請稍後再試，或到官網下方填聯絡表單。" }]);
     } finally {
       setLoading(false);
     }
@@ -228,9 +227,9 @@ export default function ChatWidget() {
             </button>
           </form>
           <div style={{ fontSize: 11, color: "#9aa3b0", textAlign: "center", padding: "0 12px 10px", background: "#fff" }}>
-            AI 生成內容僅供參考，正式諮詢請洽{" "}
-            <a href={LINE_URL} target="_blank" rel="noopener" style={{ color: BRAND_BLUE }}>
-              LINE
+            AI 生成內容僅供參考，正式諮詢請{" "}
+            <a href="/#contact" style={{ color: BRAND_BLUE }}>
+              填聯絡表單
             </a>
           </div>
         </div>

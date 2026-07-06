@@ -94,6 +94,7 @@ create table if not exists ai_chat_logs (
   intent         text,                              -- 意向（詢價／合作意向／一般諮詢…）
   has_contact    boolean generated always as
                    (coalesce(contact_name, contact_phone, contact_email, contact_line) is not null) stored,
+  notified       boolean not null default false,      -- 已寄新諮詢通知？（避免同段對話重複寄）
   created_at     timestamptz not null default now(),
   updated_at     timestamptz not null default now()
 );
