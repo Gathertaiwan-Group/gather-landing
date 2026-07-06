@@ -70,10 +70,24 @@ export default function ChatWidget() {
           text: data.ok ? data.reply : data.message || "抱歉，暫時無法回覆，請稍後再試。",
         },
       ]);
+      if (data.ok && data.quotePending) void generateQuote();
     } catch {
       setMsgs((m) => [...m, { role: "model", text: "連線出了點問題，請稍後再試，或到官網下方填聯絡表單。" }]);
     } finally {
       setLoading(false);
+    }
+  }
+
+  // 客人同意收報價 → 靜默請後端依對話產生報價草稿（老闆審核後才寄）。
+  async function generateQuote() {
+    try {
+      await fetch("/api/ai/quote", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sessionId: sessionIdRef.current }),
+      });
+    } catch {
+      /* 靜默：草稿生成失敗不影響對話 */
     }
   }
 

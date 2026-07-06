@@ -423,3 +423,232 @@ button {
     min-width: 640px;
   }
 }
+
+/* ─────────────────────────────────────────────────────────────
+   公開報價頁 /quote/[token]（發票風、品牌藍 #1668c2）
+   ───────────────────────────────────────────────────────────── */
+.gt-quote-page {
+  min-height: 100vh;
+  background: #f5f5f7;
+  padding: clamp(20px, 5vw, 56px) clamp(14px, 4vw, 32px);
+  color: #1d1d1f;
+}
+.gt-quote-card {
+  max-width: 720px;
+  margin: 0 auto;
+  background: #ffffff;
+  border-radius: 24px;
+  box-shadow: 0 4px 30px rgba(20, 40, 80, 0.08);
+  padding: clamp(24px, 5vw, 44px);
+}
+
+/* Header */
+.gt-quote-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #ececee;
+}
+.gt-quote-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.gt-quote-logo {
+  width: 30px;
+  height: 30px;
+  border-radius: 7px;
+  display: block;
+}
+.gt-quote-brandname {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1d1d1f;
+}
+.gt-quote-meta {
+  text-align: right;
+}
+.gt-quote-meta-label {
+  font-size: 11px;
+  color: #86868b;
+  letter-spacing: 0.02em;
+}
+.gt-quote-meta-value {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1668c2;
+  white-space: nowrap;
+}
+
+/* 客戶 / 日期 */
+.gt-quote-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 28px;
+  margin: 18px 0 4px;
+}
+.gt-quote-info-row {
+  display: flex;
+  gap: 8px;
+  font-size: 13.5px;
+}
+.gt-quote-info-k {
+  color: #86868b;
+}
+.gt-quote-info-v {
+  color: #1d1d1f;
+  font-weight: 600;
+}
+
+/* 項目表 */
+.gt-quote-table-wrap {
+  margin: 18px 0 4px;
+  overflow-x: auto;
+}
+.gt-quote-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.gt-quote-table th,
+.gt-quote-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #ececee;
+  text-align: left;
+  vertical-align: middle;
+}
+.gt-quote-table thead th {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6e6e73;
+  border-bottom: 1.5px solid #e2e2e6;
+  white-space: nowrap;
+}
+.gt-quote-table .num {
+  text-align: right;
+  white-space: nowrap;
+}
+.gt-quote-table tfoot td {
+  border-bottom: none;
+  padding-top: 8px;
+  padding-bottom: 4px;
+}
+.gt-quote-sum-label {
+  text-align: right;
+  color: #6e6e73;
+}
+.gt-quote-total-row td {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1d1d1f;
+  padding-top: 10px;
+  border-top: 1.5px solid #e2e2e6;
+}
+
+/* 備註 */
+.gt-quote-notes {
+  margin: 16px 0 4px;
+  padding: 12px 14px;
+  background: #f5f5f7;
+  border-radius: 12px;
+  color: #6e6e73;
+  font-size: 13px;
+  line-height: 1.65;
+  white-space: pre-wrap;
+}
+
+/* 動作區 */
+.gt-quote-actions {
+  margin: 26px 0 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.gt-quote-accept {
+  appearance: none;
+  border: none;
+  cursor: pointer;
+  background: #1668c2;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 700;
+  padding: 15px 44px;
+  border-radius: 980px;
+  box-shadow: 0 6px 18px rgba(22, 104, 194, 0.28);
+  transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+}
+.gt-quote-accept:hover:not(:disabled) {
+  background: #1157a5;
+}
+.gt-quote-accept:active:not(:disabled) {
+  transform: translateY(1px);
+}
+.gt-quote-accept:disabled {
+  opacity: 0.6;
+  cursor: default;
+  box-shadow: none;
+}
+.gt-quote-link {
+  color: #1668c2;
+  font-size: 13.5px;
+  text-decoration: none;
+}
+.gt-quote-link:hover {
+  text-decoration: underline;
+}
+.gt-quote-error {
+  margin: 4px 0 0;
+  color: #b3261e;
+  font-size: 13px;
+  text-align: center;
+}
+
+/* 狀態橫幅 */
+.gt-quote-banner {
+  width: 100%;
+  border-radius: 14px;
+  padding: 16px 18px;
+  font-size: 14.5px;
+  line-height: 1.6;
+  text-align: center;
+}
+.gt-quote-banner-ok {
+  background: #dcf3e5;
+  color: #1f7a44;
+  font-weight: 600;
+}
+.gt-quote-banner-muted {
+  background: #ececee;
+  color: #6e6e73;
+}
+
+/* Footer */
+.gt-quote-footer {
+  margin-top: 26px;
+  padding-top: 18px;
+  border-top: 1px solid #ececee;
+  text-align: center;
+  font-size: 12px;
+  line-height: 1.7;
+  color: #86868b;
+}
+
+@media (max-width: 600px) {
+  .gt-quote-card {
+    padding: 22px 16px;
+    border-radius: 18px;
+  }
+  .gt-quote-table {
+    min-width: 480px;
+  }
+  .gt-quote-total-row td {
+    font-size: 16px;
+  }
+  .gt-quote-accept {
+    width: 100%;
+    padding: 15px 24px;
+  }
+}

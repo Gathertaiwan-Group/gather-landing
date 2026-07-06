@@ -136,3 +136,39 @@ create index if not exists client_cases_updated_idx on client_cases (updated_at 
 alter table ai_chat_logs enable row level security;
 alter table ai_tool_logs enable row level security;
 alter table client_cases  enable row level security;
+
+-- ─────────────────────────────────────────────────────────────
+-- 報價單流程 — /admin/quotes（審核）+ /quote/<token>（公開）
+-- RLS 啟用、無 public policy → 只 service_role；公開頁由 server route 以 token 查。
+-- ─────────────────────────────────────────────────────────────
+create sequence if not exists quote_seq;
+
+create table if not exists quotes (
+  id            uuid primary key default gen_random_uuid(),
+  quote_no      text unique default ('Q-' || extract(year from now())::int::text || '-' || lpad(nextval('quote_seq')::text, 4, '0')),
+  session_id    text,                               -- 回連 ai_chat_logs（AI 產生時）
+  client_name   text,
+  contact_email text,
+  contact_phone text,
+  contact_line  text,
+  status        text not null default 'draft',      -- draft|sent|viewed|accepted|declined|expired|closed
+  currency      text default 'TWD',
+  line_items    jsonb not null default '[]'::jsonb, -- [{description,qty,unit_price,amount}]
+  subtotal      numeric,
+  tax           numeric,                            -- 選填（5% 營業稅）
+  total         numeric,
+  notes         text,
+  valid_days    int default 14,
+  valid_until   timestamptz,
+  public_token  text unique,                        -- 對應 /quote/<token>
+  created_by    text default 'ai',                  -- ai|manual
+  sent_at       timestamptz,
+  viewed_at     timestamptz,
+  accepted_at   timestamptz,
+  reminded_at   timestamptz,
+  created_at    timestamptz not null default now(),
+  updated_at    timestamptz not null default now()
+);
+create index if not exists quotes_status_idx on quotes (status, updated_at desc);
+create index if not exists quotes_token_idx  on quotes (public_token);
+alter table quotes enable row level security;

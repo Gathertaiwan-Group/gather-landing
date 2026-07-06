@@ -10,6 +10,7 @@ const NAV = [
   { href: "/admin", label: "總覽" },
   { href: "/admin/inquiries", label: "諮詢紀錄" },
   { href: "/admin/cases", label: "案件管理" },
+  { href: "/admin/quotes", label: "報價單" },
 ] as const;
 
 /** 後台固定導覽列（沿用 SiteHeader 視覺；當前頁加粗變藍）。 */

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { callGeminiChat, rateLimit, clientIp, aiErrorResponse, type ChatTurn } from "@/lib/gemini";
 import { CHAT_SYSTEM } from "@/lib/aiConfig";
 import { logChat } from "@/lib/adminChat";
+import { hasQuoteKeyword, classifyQuoteReady, getQuoteIdBySession } from "@/lib/quote";
 
 export const runtime = "nodejs";
 
@@ -43,7 +44,22 @@ export async function POST(req: Request) {
     } catch {
       /* 記錄/萃取失敗不影響回覆 */
     }
-    return NextResponse.json({ ok: true, reply });
+
+    // 偵測「客人已同意收報價」→ 回 quotePending，讓前端觸發報價草稿生成。
+    // 只在對話出現報價關鍵字、且該 session 尚無報價時才跑（省成本）。
+    let quotePending = false;
+    try {
+      const convo: ChatTurn[] = [...turns, { role: "model", text: reply }];
+      const transcript = convo.map((t) => t.text).join("\n");
+      if (sessionId && hasQuoteKeyword(transcript) && !(await getQuoteIdBySession(sessionId))) {
+        const cls = await classifyQuoteReady(convo);
+        if (cls?.ready && cls.email) quotePending = true;
+      }
+    } catch {
+      /* 偵測失敗不影響回覆 */
+    }
+
+    return NextResponse.json({ ok: true, reply, quotePending });
   } catch (err) {
     const { status, body: b } = aiErrorResponse(err);
     return NextResponse.json(b, { status });
