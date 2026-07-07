@@ -4,7 +4,9 @@ import ChatWidget from "@/components/ai/ChatWidget";
 import Analytics from "@/components/Analytics";
 import "./globals.css";
 
-const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
+// gathertaiwan.com 對應的 GA4 property「Gather 官網 - GA4」串流評估 ID。
+// 以 env 為主、fallback 為此常數（確保任何環境都指向正確 property）。
+const GA_ID = process.env.NEXT_PUBLIC_GA_ID || "G-WHRGG1W34L";
 
 export const metadata: Metadata = {
   title: "給樂數位 Gather — AI 賦能的客製化數位系統",
