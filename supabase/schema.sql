@@ -172,3 +172,87 @@ create table if not exists quotes (
 create index if not exists quotes_status_idx on quotes (status, updated_at desc);
 create index if not exists quotes_token_idx  on quotes (public_token);
 alter table quotes enable row level security;
+
+-- ─────────────────────────────────────────────────────────────
+-- P0 錢的閉環 — 合約 /contract/<token>、請款 /pay/<token>、settings
+-- RLS 啟用、無 public policy → 只 service_role；公開頁由 server route 以 token 查。
+-- ─────────────────────────────────────────────────────────────
+create sequence if not exists contract_seq;
+
+create table if not exists contracts (
+  id             uuid primary key default gen_random_uuid(),
+  contract_no    text unique default ('C-' || extract(year from now())::int::text || '-' || lpad(nextval('contract_seq')::text, 4, '0')),
+  case_id        uuid,                              -- 回連 client_cases（開案後補）
+  quote_id       uuid,                              -- 來源報價
+  client_name    text,
+  contact_email  text,
+  content_md     text not null default '',          -- 模板＋報價項目合成的合約全文（Markdown）
+  status         text not null default 'draft',     -- draft|sent|signed|voided
+  public_token   text unique,                       -- 對應 /contract/<token>
+  sent_at        timestamptz,
+  signed_at      timestamptz,
+  signer_name    text,                              -- 電子簽證跡：簽名者
+  signer_ip      text,                              -- 電子簽證跡：IP
+  signer_user_agent text,                           -- 電子簽證跡：UA
+  reminded_at    timestamptz,                       -- 未簽跟進（一次）
+  created_at     timestamptz not null default now(),
+  updated_at     timestamptz not null default now()
+);
+create index if not exists contracts_status_idx on contracts (status, updated_at desc);
+create index if not exists contracts_token_idx  on contracts (public_token);
+create index if not exists contracts_quote_idx  on contracts (quote_id);
+alter table contracts enable row level security;
+
+create sequence if not exists payment_seq;
+
+create table if not exists payments (
+  id             uuid primary key default gen_random_uuid(),
+  payment_no     text unique default ('P-' || extract(year from now())::int::text || '-' || lpad(nextval('payment_seq')::text, 4, '0')),
+  case_id        uuid,
+  quote_id       uuid,
+  contract_id    uuid,
+  kind           text not null default 'deposit',   -- deposit|final|full|custom
+  title          text,                              -- 顯示用（例：訂金 50%）
+  amount         numeric not null default 0,
+  status         text not null default 'pending',   -- pending|paid|failed|refunded
+  method         text,                              -- pchomepay_credit|pchomepay_atm|bank_transfer|manual
+  public_token   text unique,                       -- 對應 /pay/<token>
+  gateway_order_no text,                            -- 我方送金流閘道（PChomePay）的訂單編號
+  gateway_trade_no text,                            -- 閘道回傳的交易編號
+  atm_bank_code  text,                              -- ATM 取號：銀行代碼
+  atm_v_account  text,                              -- ATM 取號：虛擬帳號
+  atm_expire_date text,                             -- ATM 取號：繳費期限
+  paid_at        timestamptz,
+  reminded_at    timestamptz,                       -- 未付款跟進（一次）
+  raw_response   jsonb,                             -- 閘道 notify 原始 payload
+  created_at     timestamptz not null default now(),
+  updated_at     timestamptz not null default now()
+);
+create index if not exists payments_status_idx on payments (status, updated_at desc);
+create index if not exists payments_token_idx  on payments (public_token);
+create index if not exists payments_gateway_order_idx on payments (gateway_order_no);
+create index if not exists payments_case_idx   on payments (case_id);
+alter table payments enable row level security;
+
+-- 系統設定（合約模板/訂金比例/公司資訊；P2 起含價目表）——模組化基礎
+create table if not exists settings (
+  key        text primary key,
+  value      jsonb not null default '{}'::jsonb,
+  updated_at timestamptz not null default now()
+);
+alter table settings enable row level security;
+
+-- client_cases 錢的閉環擴欄
+alter table client_cases add column if not exists quote_id        uuid;
+alter table client_cases add column if not exists contract_id     uuid;
+alter table client_cases add column if not exists deposit_paid_at timestamptz;
+alter table client_cases add column if not exists final_paid_at   timestamptz;
+alter table client_cases add column if not exists closed_at       timestamptz;
+alter table client_cases add column if not exists auto_opened     boolean not null default false;
+
+-- 併發護欄（review H1）：跨列冪等的最後防線——同一報價至多一份有效合約、一張有效訂金單、一張有效尾款單
+-- （作廢/failed 不佔位，允許作廢後重開）。應用層 read-then-insert 輸掉競速時會踩到 23505，
+-- lib 端 fallback 會回頭撿贏家那筆。
+create unique index if not exists contracts_one_active_per_quote        on contracts (quote_id) where quote_id is not null and status <> 'voided';
+create unique index if not exists payments_one_active_deposit_per_quote on payments (quote_id) where quote_id is not null and kind = 'deposit' and status <> 'failed';
+create unique index if not exists payments_one_active_final_per_quote   on payments (quote_id) where quote_id is not null and kind = 'final'   and status <> 'failed';

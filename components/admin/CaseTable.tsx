@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { SOURCE_LABELS, type ClientCase } from "@/lib/adminCases";
 import StatusSelect from "./StatusSelect";
@@ -129,22 +130,41 @@ export default function CaseTable({ cases, prefill }: Props) {
                     <td style={{ color: "#6e6e73", whiteSpace: "nowrap" }}>{formatBudget(c)}</td>
                     <td style={{ color: "#86868b", whiteSpace: "nowrap" }}>{formatDateTime(c.updated_at)}</td>
                     <td>
-                      <button
-                        onClick={() => openEdit(c)}
-                        style={{
-                          border: `1px solid ${BRAND_BLUE}`,
-                          background: "#fff",
-                          color: BRAND_BLUE,
-                          borderRadius: 980,
-                          padding: "5px 14px",
-                          fontSize: 13,
-                          fontWeight: 500,
-                          cursor: "pointer",
-                          whiteSpace: "nowrap",
-                        }}
-                      >
-                        編輯
-                      </button>
+                      <span style={{ display: "inline-flex", gap: 8 }}>
+                        <Link
+                          href={`/admin/cases/${c.id}`}
+                          style={{
+                            display: "inline-block",
+                            border: "none",
+                            background: BRAND_BLUE,
+                            color: "#fff",
+                            borderRadius: 980,
+                            padding: "6px 14px",
+                            fontSize: 13,
+                            fontWeight: 500,
+                            textDecoration: "none",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          詳情
+                        </Link>
+                        <button
+                          onClick={() => openEdit(c)}
+                          style={{
+                            border: `1px solid ${BRAND_BLUE}`,
+                            background: "#fff",
+                            color: BRAND_BLUE,
+                            borderRadius: 980,
+                            padding: "5px 14px",
+                            fontSize: 13,
+                            fontWeight: 500,
+                            cursor: "pointer",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          編輯
+                        </button>
+                      </span>
                     </td>
                   </tr>
                 ))

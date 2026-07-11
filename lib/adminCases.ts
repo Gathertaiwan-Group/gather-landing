@@ -38,12 +38,19 @@ export type ClientCase = {
   currency: string | null;
   notes: string | null;
   session_id: string | null;
+  // ── 錢的閉環擴欄（quote → contract → payments 金流鏈）──
+  quote_id: string | null;
+  contract_id: string | null;
+  deposit_paid_at: string | null;
+  final_paid_at: string | null;
+  closed_at: string | null;
+  auto_opened: boolean;
   created_at: string;
   updated_at: string;
 };
 
 const SELECT_COLS =
-  "id, title, client_name, contact_email, contact_phone, contact_line, source, status, budget, currency, notes, session_id, created_at, updated_at";
+  "id, title, client_name, contact_email, contact_phone, contact_line, source, status, budget, currency, notes, session_id, quote_id, contract_id, deposit_paid_at, final_paid_at, closed_at, auto_opened, created_at, updated_at";
 
 /** 所有案件（後台用，service_role），依 updated_at 新到舊。出錯回 []。 */
 export async function getCases(): Promise<ClientCase[]> {

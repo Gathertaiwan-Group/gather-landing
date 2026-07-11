@@ -652,3 +652,252 @@ button {
     padding: 15px 24px;
   }
 }
+
+/* ─────────────────────────────────────────────────────────────
+   P0 錢的閉環：狀態 chip（CONTRACT_STATUS_COLORS／PAYMENT_STATUS_COLORS
+   回傳的 className；公開頁與後台共用）＋公開簽約頁 .gt-contract-*
+   ＋公開付款頁 .gt-pay-*（沿用 .gt-quote-* 發票風）
+   ───────────────────────────────────────────────────────────── */
+.gt-status-chip {
+  display: inline-block;
+  padding: 3px 12px;
+  border-radius: 980px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.6;
+  white-space: nowrap;
+}
+.gt-status-chip--draft {
+  color: #6e6e73;
+  background: #ececee;
+}
+.gt-status-chip--sent {
+  color: #0f56a6;
+  background: #e2effb;
+}
+.gt-status-chip--signed,
+.gt-status-chip--paid {
+  color: #1f7a44;
+  background: #dcf3e5;
+}
+.gt-status-chip--voided,
+.gt-status-chip--failed {
+  color: #b3261e;
+  background: #fdecea;
+}
+.gt-status-chip--pending {
+  color: #8a6d00;
+  background: #fff4d1;
+}
+.gt-status-chip--refunded {
+  color: #5a3e9e;
+  background: #efe7fb;
+}
+
+/* 合約全文（Markdown 渲染；文件風、比 .prose 緊湊） */
+.gt-contract-md {
+  margin: 20px 0 8px;
+  font-size: 14.5px;
+  line-height: 1.85;
+  color: #1d1d1f;
+}
+.gt-contract-md > *:first-child {
+  margin-top: 0;
+}
+.gt-contract-md h1 {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  text-align: center;
+  margin: 0 0 1.1em;
+}
+.gt-contract-md h2 {
+  font-size: 16.5px;
+  font-weight: 700;
+  margin: 1.8em 0 0.6em;
+}
+.gt-contract-md h3 {
+  font-size: 15px;
+  font-weight: 700;
+  margin: 1.4em 0 0.5em;
+}
+.gt-contract-md p {
+  margin: 0.9em 0;
+}
+.gt-contract-md ul,
+.gt-contract-md ol {
+  margin: 0.9em 0;
+  padding-left: 1.5em;
+}
+.gt-contract-md li {
+  margin: 0.35em 0;
+}
+.gt-contract-md table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+  margin: 1em 0;
+}
+.gt-contract-md th,
+.gt-contract-md td {
+  padding: 8px 10px;
+  border: 1px solid #e2e2e6;
+  text-align: left;
+  vertical-align: middle;
+}
+.gt-contract-md thead th {
+  background: #f5f5f7;
+  font-size: 12px;
+  color: #6e6e73;
+  white-space: nowrap;
+}
+.gt-contract-md hr {
+  border: none;
+  border-top: 1px solid #ececee;
+  margin: 1.6em 0;
+}
+.gt-contract-md blockquote {
+  margin: 1em 0;
+  padding: 4px 16px;
+  border-left: 3px solid #1668c2;
+  background: #f5f5f7;
+  border-radius: 0 10px 10px 0;
+  color: #424245;
+}
+
+/* 簽署區 */
+.gt-contract-signbox {
+  margin: 24px 0 8px;
+  padding: clamp(16px, 3vw, 22px);
+  background: #f5f5f7;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.gt-contract-signbox-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1d1d1f;
+  margin: 0;
+}
+.gt-contract-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.gt-contract-label {
+  font-size: 13px;
+  color: #6e6e73;
+}
+.gt-contract-input {
+  appearance: none;
+  border: 1px solid #d5d5da;
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 15px;
+  color: #1d1d1f;
+  background: #fff;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.gt-contract-input:focus {
+  border-color: #1668c2;
+  box-shadow: 0 0 0 3px rgba(22, 104, 194, 0.15);
+}
+.gt-contract-agree {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: #1d1d1f;
+  cursor: pointer;
+}
+.gt-contract-agree input {
+  width: 17px;
+  height: 17px;
+  margin-top: 2px;
+  accent-color: #1668c2;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+/* 已簽署資訊列 */
+.gt-contract-signedinfo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 28px;
+  justify-content: center;
+  font-size: 13px;
+  color: #6e6e73;
+}
+.gt-contract-signedinfo b {
+  color: #1d1d1f;
+}
+
+/* 付款頁 */
+.gt-pay-amountbox {
+  margin: 22px 0 6px;
+  text-align: center;
+  padding: 22px 16px;
+  background: #f5f5f7;
+  border-radius: 16px;
+}
+.gt-pay-amount-label {
+  font-size: 12px;
+  color: #86868b;
+  letter-spacing: 0.04em;
+}
+.gt-pay-amount {
+  font-size: clamp(30px, 6vw, 38px);
+  font-weight: 700;
+  color: #1d1d1f;
+  letter-spacing: -0.02em;
+  margin-top: 4px;
+}
+.gt-pay-atm {
+  margin: 16px 0 4px;
+  padding: 16px 18px;
+  border: 1px dashed #c8c8ce;
+  border-radius: 14px;
+  background: #fff;
+}
+.gt-pay-atm-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1d1d1f;
+  margin: 0 0 8px;
+}
+.gt-pay-atm-row {
+  display: flex;
+  gap: 10px;
+  font-size: 13.5px;
+  margin: 4px 0;
+}
+.gt-pay-atm-k {
+  color: #86868b;
+  min-width: 64px;
+  flex-shrink: 0;
+}
+.gt-pay-atm-v {
+  color: #1d1d1f;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  word-break: break-all;
+}
+.gt-pay-note {
+  font-size: 12.5px;
+  color: #86868b;
+  text-align: center;
+  margin: 6px 0 0;
+}
+/* 付款頁狀態橫幅補色（搭配 .gt-quote-banner 基底） */
+.gt-pay-banner-processing {
+  background: #fff4d1;
+  color: #8a6d00;
+  font-weight: 600;
+}
+.gt-pay-banner-bad {
+  background: #fdecea;
+  color: #b3261e;
+}
