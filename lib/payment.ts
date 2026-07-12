@@ -224,13 +224,17 @@ export async function createDepositForContract(contract: Contract): Promise<Paym
  * 冪等：同 case（或同 quote）已有 final → 回既有；金額 <= 0（含已付清）回 null。
  * 註：ClientCase 型別未含金流擴欄，quote_id/contract_id 直接查 DB。
  */
-export async function createFinalForCase(caseRow: ClientCase): Promise<Payment | null> {
-  if (!caseRow?.id) return null;
+export async function createFinalForCase(
+  caseRow: ClientCase
+): Promise<{ payment: Payment | null; created: boolean; error?: boolean }> {
+  // 回傳語意：created=true 只有「本次真的新建」那一方拿到（併發輸家撿回贏家那筆時 created=false）——
+  // 呼叫端據此決定要不要寄請款信（恰好一次）。error=true 表示 DB/資料異常，與「無需請款」明確區分。
+  if (!caseRow?.id) return { payment: null, created: false, error: true };
   const supabase = createAdminSupabase();
-  if (!supabase) return null;
+  if (!supabase) return { payment: null, created: false, error: true };
 
   const existingByCase = await findExistingPayment({ caseId: caseRow.id, kind: "final" });
-  if (existingByCase) return existingByCase;
+  if (existingByCase) return { payment: existingByCase, created: false };
 
   let quoteId: string | null = null;
   let contractId: string | null = null;
@@ -243,12 +247,12 @@ export async function createFinalForCase(caseRow: ClientCase): Promise<Payment |
     quoteId = (data?.quote_id as string | null) ?? null;
     contractId = (data?.contract_id as string | null) ?? null;
   } catch {
-    return null;
+    return { payment: null, created: false, error: true };
   }
-  if (!quoteId) return null;
+  if (!quoteId) return { payment: null, created: false };
 
   const existingByQuote = await findExistingPayment({ quoteId, kind: "final" });
-  if (existingByQuote) return existingByQuote;
+  if (existingByQuote) return { payment: existingByQuote, created: false };
 
   // 建立尾款前：先作廢同 case/quote 仍未付的訂金單，再計算「已付」金額。
   // 順序是併發安全的關鍵——作廢在前、加總在後：訂金若搶先變 paid 會被計入下方 paidSoFar
@@ -258,7 +262,8 @@ export async function createFinalForCase(caseRow: ClientCase): Promise<Payment |
 
   const quote = await getQuote(quoteId);
   const total = Math.round(Number(quote?.total) || 0);
-  if (!quote || total <= 0) return null;
+  if (!quote) return { payment: null, created: false, error: true }; // quote_id 存在卻查不到＝異常，不可誤報「無需請款」
+  if (total <= 0) return { payment: null, created: false };
 
   let paidSoFar = 0;
   try {
@@ -270,11 +275,11 @@ export async function createFinalForCase(caseRow: ClientCase): Promise<Payment |
       .in("kind", ["deposit", "full"]);
     paidSoFar = (paidRows ?? []).reduce((s, r) => s + (Number((r as { amount: unknown }).amount) || 0), 0);
   } catch {
-    return null;
+    return { payment: null, created: false, error: true };
   }
 
   const amount = Math.round(total - paidSoFar);
-  if (amount <= 0) return null;
+  if (amount <= 0) return { payment: null, created: false };
 
   const created = await createPayment({
     case_id: caseRow.id,
@@ -284,9 +289,10 @@ export async function createFinalForCase(caseRow: ClientCase): Promise<Payment |
     title: "尾款",
     amount,
   });
-  if (created) return created;
-  // 唯一索引（payments_one_active_final_per_quote）擋下的併發重複 → 撿回贏家那筆。
-  return findExistingPayment({ quoteId, kind: "final" });
+  if (created) return { payment: created, created: true };
+  // 唯一索引（payments_one_active_final_per_quote）擋下的併發重複 → 撿回贏家那筆（輸家 created=false 不寄信）。
+  const reclaimed = await findExistingPayment({ quoteId, kind: "final" });
+  return reclaimed ? { payment: reclaimed, created: false } : { payment: null, created: false, error: true };
 }
 
 export async function getPayment(id: string): Promise<Payment | null> {

@@ -256,3 +256,52 @@ alter table client_cases add column if not exists auto_opened     boolean not nu
 create unique index if not exists contracts_one_active_per_quote        on contracts (quote_id) where quote_id is not null and status <> 'voided';
 create unique index if not exists payments_one_active_deposit_per_quote on payments (quote_id) where quote_id is not null and kind = 'deposit' and status <> 'failed';
 create unique index if not exists payments_one_active_final_per_quote   on payments (quote_id) where quote_id is not null and kind = 'final'   and status <> 'failed';
+
+-- ─────────────────────────────────────────────────────────────
+-- P1 客戶專案入口 — /portal/<token>（公開、token 制）＋後台里程碑/交付物/動態
+-- RLS 全鎖 service_role；交付檔案在私有 bucket "deliverables"（簽名 URL 下載）。
+-- ─────────────────────────────────────────────────────────────
+create table if not exists milestones (
+  id          uuid primary key default gen_random_uuid(),
+  case_id     uuid not null,
+  title       text not null,
+  description text,
+  due_date    date,
+  status      text not null default 'pending',  -- pending|in_progress|done
+  sort_order  int  not null default 0,
+  done_at     timestamptz,
+  created_at  timestamptz not null default now(),
+  updated_at  timestamptz not null default now()
+);
+create index if not exists milestones_case_idx on milestones (case_id, sort_order);
+alter table milestones enable row level security;
+
+create table if not exists case_updates (
+  id         uuid primary key default gen_random_uuid(),
+  case_id    uuid not null,
+  author     text not null default 'owner',     -- owner|client|system（簽約/付款/里程碑等系統事件也寫入=timeline）
+  body       text not null,
+  created_at timestamptz not null default now()
+);
+create index if not exists case_updates_case_idx on case_updates (case_id, created_at desc);
+alter table case_updates enable row level security;
+
+create table if not exists deliverables (
+  id           uuid primary key default gen_random_uuid(),
+  case_id      uuid not null,
+  milestone_id uuid,
+  title        text not null,
+  file_path    text,                             -- 私有 bucket 內路徑（下載走簽名 URL）
+  content_md   text,                             -- 文字型交付物（P2 AI 初稿也存此）
+  version      int  not null default 1,
+  status       text not null default 'delivered',-- draft|delivered|approved|rejected（draft=僅老闆可見）
+  is_final     boolean not null default false,   -- 最終交付：客戶 approve → 自動完工請尾款
+  feedback     text,
+  approved_at  timestamptz,
+  created_at   timestamptz not null default now(),
+  updated_at   timestamptz not null default now()
+);
+create index if not exists deliverables_case_idx on deliverables (case_id, created_at desc);
+alter table deliverables enable row level security;
+
+alter table client_cases add column if not exists portal_token text unique;

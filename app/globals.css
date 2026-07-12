@@ -901,3 +901,372 @@ button {
   background: #fdecea;
   color: #b3261e;
 }
+
+/* ─────────────────────────────────────────────────────────────
+   P1 客戶專案入口 /portal/[token]（.gt-portal-*；沿用 .gt-quote-* 發票風、
+   狀態 chip 用既有 .gt-status-chip 系、Markdown 內容用既有 .gt-contract-md）
+   ───────────────────────────────────────────────────────────── */
+.gt-portal-title {
+  margin: 22px 0 6px;
+  font-size: clamp(20px, 3.6vw, 26px);
+  font-weight: 700;
+  letter-spacing: -0.012em;
+  color: #1d1d1f;
+}
+.gt-portal-section {
+  margin-top: 30px;
+}
+.gt-portal-section-title {
+  margin: 0 0 12px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #1d1d1f;
+}
+.gt-portal-empty {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: #86868b;
+}
+
+/* 進度條 */
+.gt-portal-progress-track {
+  width: 100%;
+  height: 10px;
+  border-radius: 980px;
+  background: #ececee;
+  overflow: hidden;
+}
+.gt-portal-progress-fill {
+  height: 100%;
+  border-radius: 980px;
+  background: #1668c2;
+  transition: width 0.3s ease;
+}
+.gt-portal-progress-label {
+  margin-top: 8px;
+  font-size: 13px;
+  color: #6e6e73;
+}
+
+/* 里程碑 timeline */
+.gt-portal-tl {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.gt-portal-tl-item {
+  position: relative;
+  padding: 0 0 18px 26px;
+}
+.gt-portal-tl-item::before {
+  content: "";
+  position: absolute;
+  left: 6px;
+  top: 18px;
+  bottom: 0;
+  width: 2px;
+  background: #ececee;
+}
+.gt-portal-tl-item:last-child {
+  padding-bottom: 0;
+}
+.gt-portal-tl-item:last-child::before {
+  display: none;
+}
+.gt-portal-tl-dot {
+  position: absolute;
+  left: 0;
+  top: 3px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid #c8c8ce;
+  background: #ffffff;
+  box-sizing: border-box;
+}
+.gt-portal-tl-dot--done {
+  border-color: #1f7a44;
+  background: #1f7a44;
+}
+.gt-portal-tl-dot--in_progress {
+  border-color: #1668c2;
+  background: #e2effb;
+}
+.gt-portal-tl-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 14.5px;
+  font-weight: 600;
+  color: #1d1d1f;
+}
+.gt-portal-tl-status {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6e6e73;
+}
+.gt-portal-tl-desc {
+  margin: 4px 0 0;
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: #424245;
+  white-space: pre-wrap;
+}
+.gt-portal-tl-meta {
+  margin-top: 4px;
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  font-size: 12.5px;
+  color: #86868b;
+}
+
+/* 交付物卡 */
+.gt-portal-deliv {
+  border: 1px solid #ececee;
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  background: #ffffff;
+}
+.gt-portal-deliv:last-child {
+  margin-bottom: 0;
+}
+.gt-portal-deliv-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+}
+.gt-portal-deliv-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 14.5px;
+  font-weight: 600;
+  color: #1d1d1f;
+}
+.gt-portal-final-badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 980px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #8a4b00;
+  background: #ffe8cc;
+  white-space: nowrap;
+}
+.gt-portal-deliv-meta {
+  margin-top: 6px;
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  font-size: 12.5px;
+  color: #86868b;
+}
+.gt-portal-deliv-actions {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.gt-portal-download {
+  display: inline-block;
+  padding: 9px 22px;
+  border-radius: 980px;
+  background: #1668c2;
+  color: #ffffff;
+  font-size: 13.5px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.15s ease;
+}
+.gt-portal-download:hover {
+  background: #1157a5;
+}
+.gt-portal-deliv-hint {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: #86868b;
+}
+.gt-portal-md {
+  margin-top: 12px;
+  border: 1px solid #ececee;
+  border-radius: 12px;
+  padding: 10px 14px;
+  background: #fafafa;
+}
+.gt-portal-md summary {
+  cursor: pointer;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #1668c2;
+}
+.gt-portal-md[open] summary {
+  margin-bottom: 6px;
+}
+.gt-portal-deliv-feedback {
+  margin-top: 12px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: #fdecea;
+  color: #7a2620;
+  font-size: 13.5px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+}
+
+/* 驗收動作（ReviewButtons）＋共用小按鈕/textarea */
+.gt-portal-review {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px dashed #ececee;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.gt-portal-review-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.gt-portal-review-note {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.7;
+  color: #6e6e73;
+}
+.gt-portal-btn {
+  appearance: none;
+  border: none;
+  cursor: pointer;
+  padding: 9px 22px;
+  border-radius: 980px;
+  background: #1668c2;
+  color: #ffffff;
+  font-size: 13.5px;
+  font-weight: 600;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+.gt-portal-btn:hover:not(:disabled) {
+  background: #1157a5;
+}
+.gt-portal-btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+.gt-portal-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+.gt-portal-btn--ghost {
+  background: #ffffff;
+  color: #1668c2;
+  box-shadow: inset 0 0 0 1px #bcd4ee;
+}
+.gt-portal-btn--ghost:hover:not(:disabled) {
+  background: #f0f6fd;
+}
+.gt-portal-textarea {
+  width: 100%;
+  min-height: 96px;
+  resize: vertical;
+  border: 1px solid #d5d5da;
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 14px;
+  line-height: 1.7;
+  color: #1d1d1f;
+  background: #ffffff;
+  outline: none;
+  font-family: inherit;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.gt-portal-textarea:focus {
+  border-color: #1668c2;
+  box-shadow: 0 0 0 3px rgba(22, 104, 194, 0.15);
+}
+
+/* 動態 feed */
+.gt-portal-feed {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.gt-portal-feed-item {
+  border: 1px solid #ececee;
+  border-radius: 12px;
+  padding: 10px 14px;
+  background: #ffffff;
+}
+.gt-portal-feed-item--system {
+  background: #f5f5f7;
+  border-color: transparent;
+}
+.gt-portal-feed-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+.gt-portal-feed-author {
+  font-size: 12px;
+  font-weight: 700;
+  color: #1668c2;
+}
+.gt-portal-feed-author--client {
+  color: #1f7a44;
+}
+.gt-portal-feed-author--system {
+  color: #6e6e73;
+}
+.gt-portal-feed-time {
+  font-size: 11.5px;
+  color: #9aa3b0;
+}
+.gt-portal-feed-body {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: #1d1d1f;
+  white-space: pre-wrap;
+}
+.gt-portal-feed-item--system .gt-portal-feed-body {
+  color: #6e6e73;
+}
+
+/* 留言框 */
+.gt-portal-commentbox {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.gt-portal-commentbox-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.gt-portal-ok {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1f7a44;
+}
+
+@media (max-width: 600px) {
+  .gt-portal-review-row {
+    flex-direction: column;
+  }
+  .gt-portal-btn,
+  .gt-portal-download {
+    width: 100%;
+    text-align: center;
+  }
+}

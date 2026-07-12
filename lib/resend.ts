@@ -4,8 +4,9 @@
 
 import { getQuote, type Quote, type LineItem } from "@/lib/quote";
 import { getContract, type Contract } from "@/lib/contract";
-import { getCase } from "@/lib/adminCases";
+import { getCase, type ClientCase } from "@/lib/adminCases";
 import { PAYMENT_KIND_LABELS, type Payment } from "@/lib/payment";
+import type { Deliverable } from "@/lib/portal";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://gathertaiwan.com";
 
@@ -342,14 +343,19 @@ export async function sendPaymentReminderEmail(payment: Payment): Promise<boolea
   });
 }
 
-/** 寄「已收訂金、正式開工」給客人。 */
-export async function sendWorkStartedEmail(payment: Payment): Promise<boolean> {
+/** 寄「已收訂金、正式開工」給客人（portalUrl 有給就附客戶專屬進度頁連結；可選、向後相容）。 */
+export async function sendWorkStartedEmail(payment: Payment, portalUrl?: string): Promise<boolean> {
   const rc = await resolvePaymentRecipient(payment);
   if (!rc) return false;
   const hi = rc.name ? `${esc(rc.name)} 您好，` : "您好，";
+  const portalBlock = portalUrl
+    ? `<p style="text-align:center;margin:14px 0 12px">${quoteButton(portalUrl, "查看專案進度")}</p>
+    <p style="color:#6e6e73;font-size:13px;line-height:1.7;margin:0 0 10px">上方是您的專案專屬進度頁：開發期間的里程碑、最新動態與交付內容都會即時更新，也可以直接在頁面上留言給我們。</p>`
+    : "";
   const html = `<div style="font-family:-apple-system,BlinkMacSystemFont,'Noto Sans TC',sans-serif;max-width:560px;margin:0 auto">
     <h2 style="color:#1f7a44;margin:0 0 4px;font-size:20px">🚀 已收到訂金，專案正式開工！</h2>
     <p style="color:#1d1d1f;font-size:14.5px;line-height:1.7;margin:14px 0">${hi}我們已收到您的款項 <b>${money(payment.amount)}</b>（單號 ${esc(payment.payment_no ?? "—")}），專案正式啟動。接下來我們會依合約內容進行開發，過程中有需要確認的事項會隨時與您聯繫。</p>
+    ${portalBlock}
     <p style="color:#6e6e73;font-size:13px;line-height:1.7;margin:0">開發完成後會通知您驗收，屆時再進行尾款結算。</p>
     ${SIGNATURE}
   </div>`;
@@ -375,6 +381,70 @@ export async function sendClosingEmail(payment: Payment): Promise<boolean> {
   return postEmail({
     to: rc.email,
     subject: `專案結案通知與感謝 🎉（${payment.payment_no ?? ""}）`,
+    html,
+    replyTo: process.env.CONTACT_NOTIFY_TO,
+  });
+}
+
+// ─────────────────────────────────────────────────────────────
+// P1 客戶專案入口：留言／回覆／交付物通知 Email
+// ─────────────────────────────────────────────────────────────
+
+/** 通知「老闆」客戶在 portal 留言（含後台案件連結；reply_to 設客人 Email 方便直接回信）。 */
+export async function sendPortalCommentNotice(caseRow: ClientCase, body: string): Promise<boolean> {
+  const to = process.env.CONTACT_NOTIFY_TO;
+  if (!to) return false;
+  const adminUrl = `${SITE_URL}/admin/cases/${caseRow.id}`;
+  const html = `<div style="font-family:-apple-system,BlinkMacSystemFont,'Noto Sans TC',sans-serif;max-width:560px;margin:0 auto">
+    <h2 style="color:#1668c2;margin:0 0 4px;font-size:20px">💬 客戶留言：${esc(caseRow.client_name)}</h2>
+    <p style="color:#86868b;margin:0 0 14px;font-size:13px">案件：${esc(caseRow.title)}</p>
+    <div style="white-space:pre-wrap;color:#1d1d1f;background:#f5f5f7;border-radius:10px;padding:12px 14px;font-size:14px;line-height:1.7">${esc(body)}</div>
+    <p style="margin:16px 0 0;font-size:13px;color:#86868b">到後台回覆 → <a href="${adminUrl}" style="color:#1668c2">${adminUrl.replace("https://", "")}</a></p>
+  </div>`;
+  return postEmail({
+    to,
+    subject: `💬 客戶留言：${caseRow.client_name}（${caseRow.title}）`,
+    html,
+    replyTo: caseRow.contact_email,
+  });
+}
+
+/** 通知「客人」老闆回覆了專案動態（含 portal 連結）。客人沒 Email → false。 */
+export async function sendOwnerReplyNotice(caseRow: ClientCase, body: string, portalUrl: string): Promise<boolean> {
+  if (!caseRow.contact_email) return false;
+  const hi = caseRow.client_name ? `${esc(caseRow.client_name)} 您好，` : "您好，";
+  const html = `<div style="font-family:-apple-system,BlinkMacSystemFont,'Noto Sans TC',sans-serif;max-width:560px;margin:0 auto">
+    <h2 style="color:#1668c2;margin:0 0 4px;font-size:20px">📮 專案進度回覆</h2>
+    <p style="color:#1d1d1f;font-size:14.5px;line-height:1.7;margin:14px 0">${hi}您的專案「${esc(caseRow.title)}」有一則新回覆：</p>
+    <div style="white-space:pre-wrap;color:#1d1d1f;background:#f5f5f7;border-radius:10px;padding:12px 14px;font-size:14px;line-height:1.7">${esc(body)}</div>
+    <p style="text-align:center;margin:16px 0 18px">${quoteButton(portalUrl, "查看專案進度")}</p>
+    ${SIGNATURE}
+  </div>`;
+  return postEmail({
+    to: caseRow.contact_email,
+    subject: `專案進度回覆：${caseRow.title}`,
+    html,
+    replyTo: process.env.CONTACT_NOTIFY_TO,
+  });
+}
+
+/** 通知「客人」有新交付物待驗收（含 portal 連結；is_final 會提示驗收通過即進入尾款結算）。 */
+export async function sendDeliverableNotice(caseRow: ClientCase, deliverable: Deliverable, portalUrl: string): Promise<boolean> {
+  if (!caseRow.contact_email) return false;
+  const hi = caseRow.client_name ? `${esc(caseRow.client_name)} 您好，` : "您好，";
+  const finalNote = deliverable.is_final
+    ? "；這是本案的<b>最終交付</b>，驗收通過後我們就會進行尾款結算"
+    : "";
+  const html = `<div style="font-family:-apple-system,BlinkMacSystemFont,'Noto Sans TC',sans-serif;max-width:560px;margin:0 auto">
+    <h2 style="color:#1668c2;margin:0 0 4px;font-size:20px">📦 新交付物待驗收：${esc(deliverable.title)}</h2>
+    <p style="color:#1d1d1f;font-size:14.5px;line-height:1.7;margin:14px 0">${hi}您的專案「${esc(caseRow.title)}」有新的交付內容，請點下方按鈕查看並進行驗收${finalNote}：</p>
+    <p style="text-align:center;margin:14px 0 18px">${quoteButton(portalUrl, "查看並驗收")}</p>
+    <p style="color:#6e6e73;font-size:13px;line-height:1.7;margin:0">若有需要調整的地方，也可以在頁面上選「要求修改」並留下意見，我們會盡快處理。</p>
+    ${SIGNATURE}
+  </div>`;
+  return postEmail({
+    to: caseRow.contact_email,
+    subject: `📦 交付物待驗收：${deliverable.title}`,
     html,
     replyTo: process.env.CONTACT_NOTIFY_TO,
   });

@@ -4,10 +4,14 @@ import AdminHeader from "@/components/admin/AdminHeader";
 import StatusSelect from "@/components/admin/StatusSelect";
 import CaseTimeline from "@/components/admin/CaseTimeline";
 import CaseActions from "@/components/admin/CaseActions";
+import MilestonePanel from "@/components/admin/MilestonePanel";
+import DeliverablePanel from "@/components/admin/DeliverablePanel";
+import UpdatesPanel from "@/components/admin/UpdatesPanel";
 import { getCase, SOURCE_LABELS } from "@/lib/adminCases";
 import { getQuote, getQuoteIdBySession, type Quote } from "@/lib/quote";
 import { getContract, getContractByQuoteId, type Contract } from "@/lib/contract";
 import { getPaymentsByCase, getPaymentsByQuote, type Payment } from "@/lib/payment";
+import { listMilestones, listUpdates, listDeliverables, ensurePortalToken } from "@/lib/portal";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -52,6 +56,14 @@ export default async function AdminCaseDetailPage({ params }: { params: { id: st
   const payments = [...byCase, ...byQuote]
     .filter((p) => (seen.has(p.id) ? false : (seen.add(p.id), true)))
     .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+
+  // ── P1 客戶專案入口：里程碑／動態／交付物（後台含 draft）＋ portal token（lazy 產生）──
+  const [milestones, updates, deliverables, portalToken] = await Promise.all([
+    listMilestones(caseRow.id),
+    listUpdates(caseRow.id),
+    listDeliverables(caseRow.id, { includeDraft: true }),
+    ensurePortalToken(caseRow.id),
+  ]);
 
   return (
     <>
@@ -117,6 +129,15 @@ export default async function AdminCaseDetailPage({ params }: { params: { id: st
 
           {/* 操作：完工請尾款／標記收款／作廢合約 */}
           <CaseActions caseId={caseRow.id} caseStatus={caseRow.status} contract={contract} payments={payments} />
+
+          {/* P1 客戶專案入口：portal 連結＋里程碑管理 */}
+          <MilestonePanel caseId={caseRow.id} milestones={milestones} portalToken={portalToken} />
+
+          {/* P1：交付物上傳／發布給客戶驗收 */}
+          <DeliverablePanel caseId={caseRow.id} deliverables={deliverables} />
+
+          {/* P1：專案動態 feed＋回覆客戶 */}
+          <UpdatesPanel caseId={caseRow.id} updates={updates} hasClientEmail={!!caseRow.contact_email} />
         </div>
       </main>
     </>

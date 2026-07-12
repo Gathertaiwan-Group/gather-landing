@@ -136,6 +136,20 @@ export async function DELETE(req: Request) {
   const supabase = createAdminSupabase();
   if (!supabase) return NextResponse.json({ ok: false, error: "supabase_not_configured" }, { status: 503 });
 
+  // 連同 P1 附屬資料一起刪（三表無 FK；交付檔案在私有 bucket 也要清——避免孤兒檔與客戶資料殘留）。
+  try {
+    const { data: rows } = await supabase.from("deliverables").select("file_path").eq("case_id", id);
+    const paths = (rows ?? [])
+      .map((r) => (r as { file_path: string | null }).file_path)
+      .filter((p): p is string => !!p);
+    if (paths.length > 0) await supabase.storage.from("deliverables").remove(paths);
+    await supabase.from("deliverables").delete().eq("case_id", id);
+    await supabase.from("case_updates").delete().eq("case_id", id);
+    await supabase.from("milestones").delete().eq("case_id", id);
+  } catch (err) {
+    console.error("[admin/cases] 附屬資料清除失敗（仍繼續刪案件）:", err);
+  }
+
   const { error } = await supabase.from("client_cases").delete().eq("id", id);
   if (error) return NextResponse.json({ ok: false, error: "db_error", detail: error.message }, { status: 500 });
   return NextResponse.json({ ok: true });

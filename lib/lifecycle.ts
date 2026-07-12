@@ -2,9 +2,24 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAdminSupabase } from "@/lib/supabase";
 import { getQuote, moneyTWD, type Quote } from "@/lib/quote";
 import { getContract, type Contract } from "@/lib/contract";
-import { getPayment, PAYMENT_KIND_LABELS, type Payment } from "@/lib/payment";
-import type { CaseStatus, CaseSource } from "@/lib/adminCases";
-import { sendWorkStartedEmail, sendClosingEmail, sendOwnerEventNotice } from "@/lib/resend";
+import {
+  getPayment,
+  getPaymentsByCase,
+  getPaymentsByQuote,
+  createFinalForCase,
+  PAYMENT_KIND_LABELS,
+  type Payment,
+} from "@/lib/payment";
+import { getCase, type CaseStatus, type CaseSource } from "@/lib/adminCases";
+import {
+  sendWorkStartedEmail,
+  sendClosingEmail,
+  sendOwnerEventNotice,
+  sendPaymentEmail,
+} from "@/lib/resend";
+import { ensurePortalToken, addUpdate } from "@/lib/portal";
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://gathertaiwan.com";
 
 // 付款成功副作用引擎（冪等）：
 //   訂金/全額 → 自動開案（進行中）＋開工信；尾款 → 自動結案＋感謝信。
@@ -185,7 +200,11 @@ async function onDepositPaid(supabase: SupabaseClient, payment: Payment): Promis
 
   await backfillCaseLinks(supabase, caseRow.id, payment, contract);
 
-  await sendWorkStartedEmail(payment);
+  // P1：開案即掛 portal token，開工信附客戶專屬進度頁連結（token 拿不到就寄原版開工信）。
+  const portalToken = await ensurePortalToken(caseRow.id);
+  const portalUrl = portalToken ? `${SITE_URL}/portal/${portalToken}` : undefined;
+
+  await sendWorkStartedEmail(payment, portalUrl);
   await sendOwnerEventNotice(`💰 ${PAYMENT_KIND_LABELS[payment.kind]}入帳，案件已自動開案：${caseRow.client_name}`, [
     `案件：${caseRow.title}`,
     `款項：${payment.title ?? "—"}（${payment.payment_no ?? "—"}）`,
@@ -269,4 +288,118 @@ export async function handlePaymentPaid(paymentId: string): Promise<void> {
   } catch (err) {
     console.error("[lifecycle] handlePaymentPaid failed:", err);
   }
+}
+
+// ─────────────────────────────────────────────────────────────
+// 完工 → 請尾款（後台「標記完工」與 portal 最終交付驗收共用的編排）
+// ─────────────────────────────────────────────────────────────
+
+/** 該案件相關的所有請款單（case_id ∪ quote_id，去重）。 */
+async function paymentsOfCase(caseId: string, quoteId: string | null): Promise<Payment[]> {
+  const [byCase, byQuote] = await Promise.all([
+    getPaymentsByCase(caseId),
+    quoteId ? getPaymentsByQuote(quoteId) : Promise.resolve([] as Payment[]),
+  ]);
+  const seen = new Set<string>();
+  return [...byCase, ...byQuote].filter((p) => (seen.has(p.id) ? false : (seen.add(p.id), true)));
+}
+
+/**
+ * 完工編排（自 /api/admin/cases/complete 抽出；行為等價）：
+ * case →「已完成」→ 作廢仍 pending 的訂金單（計數供通知文案；實際作廢由
+ * createFinalForCase 內的 voidPendingDeposits 統一執行——單一寫入者，會 merge
+ * raw_response.voided_reason 供付款頁顯示與稽核）→ 產尾款請款單（total − 實付訂金）
+ * → 寫一筆 system 動態 → 寄驗收＋尾款信給客人、事件通知給老闆。
+ * 冪等：已有尾款單（同 case 或同 quote）→ { already:true } 回既有單，不重產、不重寄。
+ * 失敗（supabase 未設定／case 不存在／case 更新失敗）→ { ok:false }。
+ */
+export async function completeCaseAndRequestFinal(
+  caseId: string
+): Promise<{ ok: boolean; paymentId: string | null; emailed: boolean; already: boolean }> {
+  const fail = { ok: false, paymentId: null, emailed: false, already: false };
+  const supabase = createAdminSupabase();
+  if (!supabase || !caseId) return fail;
+
+  const caseRow = await getCase(caseId);
+  if (!caseRow) return fail;
+
+  // ── 冪等：已有尾款單 → 完工流程跑過了，回既有單（不重產、不重寄信）──
+  const existingFinal = (await paymentsOfCase(caseRow.id, caseRow.quote_id)).find((p) => p.kind === "final");
+  if (existingFinal) return { ok: true, paymentId: existingFinal.id, emailed: false, already: true };
+
+  const now = new Date().toISOString();
+
+  // ── case →「已完成」（已結案不倒退）──
+  if (caseRow.status !== STATUS_DONE && caseRow.status !== STATUS_CLOSED) {
+    const { error } = await supabase
+      .from("client_cases")
+      .update({ status: STATUS_DONE, updated_at: now })
+      .eq("id", caseRow.id);
+    if (error) {
+      console.error("[lifecycle] complete case update failed:", error.message);
+      return fail;
+    }
+  }
+
+  // ── 數一下仍 pending 的訂金單（僅供通知文案）──
+  let voidedDeposits = 0;
+  try {
+    const orFilter = caseRow.quote_id
+      ? `case_id.eq.${caseRow.id},quote_id.eq.${caseRow.quote_id}`
+      : `case_id.eq.${caseRow.id}`;
+    const { data: pendingDeposits } = await supabase
+      .from("payments")
+      .select("id")
+      .eq("kind", "deposit")
+      .eq("status", "pending")
+      .or(orFilter);
+    voidedDeposits = pendingDeposits?.length ?? 0;
+  } catch (err) {
+    console.error("[lifecycle] count pending deposit failed:", err);
+  }
+
+  // ── 產尾款請款單（total − 已付訂金/全額）──
+  const finalRes = await createFinalForCase(caseRow);
+
+  // DB/資料異常：不可與「無需請款」混淆——告警老闆、回 ok:false 讓呼叫端可重試（流程冪等）。
+  if (finalRes.error) {
+    console.error("[lifecycle] 完工已標記但開立尾款失敗（case:", caseRow.id, "）");
+    await sendOwnerEventNotice(`⚠️ 完工已標記，但開立尾款請款單失敗：${caseRow.client_name}`, [
+      `案件：${caseRow.title}`,
+      "請至後台案件詳情重按「標記完工並請尾款」重試（流程冪等、不會重複開單）。",
+    ]);
+    return { ok: false, paymentId: null, emailed: false, already: false };
+  }
+
+  const payment = finalRes.payment;
+
+  if (!payment) {
+    // 真的無需請款（無關聯報價或已付清）。
+    await addUpdate(caseRow.id, "system", "專案已完工");
+    await sendOwnerEventNotice(`✅ 案件已標記完工（無需請款）：${caseRow.client_name}`, [
+      `案件：${caseRow.title}`,
+      "未產生尾款請款單（沒有關聯報價，或款項已付清）。",
+      voidedDeposits > 0 ? `已作廢 ${voidedDeposits} 張未付款的訂金單。` : "",
+    ]);
+    return { ok: true, paymentId: null, emailed: false, already: false };
+  }
+
+  if (!finalRes.created) {
+    // 併發輸家（portal 驗收與後台完工同時按下）：贏家已寄信＋寫動態，這裡靜默收斂——請款信恰好一封。
+    return { ok: true, paymentId: payment.id, emailed: false, already: true };
+  }
+
+  // ── system 動態（portal timeline；只有新建者寫，避免重複兩筆）──
+  await addUpdate(caseRow.id, "system", `專案已完工，已開立尾款請款單（${moneyTWD(payment.amount)}）`);
+
+  // ── 寄驗收＋尾款信給客人、事件通知給老闆（只有新建者寄）──
+  const emailed = await sendPaymentEmail(payment);
+  await sendOwnerEventNotice(`✅ 案件已標記完工，尾款請款單已建立：${caseRow.client_name}`, [
+    `案件：${caseRow.title}`,
+    `尾款：${moneyTWD(payment.amount)}（${payment.payment_no ?? "—"}）`,
+    voidedDeposits > 0 ? `已作廢 ${voidedDeposits} 張未付款的訂金單（尾款以全額計）。` : "",
+    emailed ? "請款信已寄給客戶。" : "⚠️ 請款信未寄出（客戶 Email 缺漏或寄信未設定），可到案件詳情複製付款連結補寄。",
+  ]);
+
+  return { ok: true, paymentId: payment.id, emailed, already: false };
 }
