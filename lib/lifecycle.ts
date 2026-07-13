@@ -211,6 +211,7 @@ async function onDepositPaid(supabase: SupabaseClient, payment: Payment): Promis
     `金額：${moneyTWD(payment.amount)}`,
     `方式：${payment.method ?? "—"}`,
     quote?.quote_no ? `報價單：${quote.quote_no}` : "",
+    `可到案件詳情一鍵產生 AI 初稿（文案／架構／設計方向）：${SITE_URL}/admin/cases/${caseRow.id}`,
   ]);
 }
 

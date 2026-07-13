@@ -3,12 +3,14 @@ import {
   createDeliverable,
   updateDeliverable,
   deleteDeliverable,
+  publishDeliverableDraft,
   ensurePortalToken,
   DELIVERABLE_STATUS_LABELS,
+  type Deliverable,
   type DeliverableStatus,
 } from "@/lib/portal";
 import { uploadDeliverable } from "@/lib/storage";
-import { getCase } from "@/lib/adminCases";
+import { getCase, type ClientCase } from "@/lib/adminCases";
 import { sendDeliverableNotice } from "@/lib/resend";
 import { createAdminSupabase } from "@/lib/supabase";
 
@@ -29,6 +31,19 @@ function isDeliverableStatus(v: unknown): v is DeliverableStatus {
 
 function truthy(v: unknown): boolean {
   return ["1", "true", "on", "yes"].includes(String(v ?? "").toLowerCase());
+}
+
+/** 寄「交付物待驗收」通知給客戶（要有 Email 且 portal token 產得出來才寄；失敗僅 log 回 false）。 */
+async function notifyClientOfDeliverable(caseRow: ClientCase, deliverable: Deliverable): Promise<boolean> {
+  if (!caseRow.contact_email) return false;
+  try {
+    const token = await ensurePortalToken(caseRow.id);
+    if (!token) return false;
+    return await sendDeliverableNotice(caseRow, deliverable, `${SITE_URL}/portal/${token}`);
+  } catch (err) {
+    console.error("[admin/deliverables] sendDeliverableNotice failed:", err);
+    return false;
+  }
 }
 
 /** best-effort 移除 storage 檔案（失敗僅 log；孤兒檔不擋主流程）。 */
@@ -117,22 +132,12 @@ export async function POST(req: Request) {
   }
 
   // DB 已落地 → 通知客人（要有 Email 且 portal token 產得出來才寄；失敗僅 log）。
-  let emailed = false;
-  if (caseRow.contact_email) {
-    try {
-      const token = await ensurePortalToken(caseId);
-      if (token) {
-        emailed = await sendDeliverableNotice(caseRow, deliverable, `${SITE_URL}/portal/${token}`);
-      }
-    } catch (err) {
-      console.error("[admin/deliverables] sendDeliverableNotice failed:", err);
-    }
-  }
+  const emailed = await notifyClientOfDeliverable(caseRow, deliverable);
 
   return NextResponse.json({ ok: true, deliverable, emailed }, { status: 201 });
 }
 
-// ── 更新交付物（title / is_final / status）──
+// ── 更新交付物（title / content_md / is_final / status）或 action:"publish" 發布草稿 ──
 export async function PATCH(req: Request) {
   let body: Record<string, unknown>;
   try {
@@ -143,6 +148,29 @@ export async function PATCH(req: Request) {
 
   const id = body.id ? String(body.id) : null;
   if (!id) return NextResponse.json({ ok: false, error: "missing_id" }, { status: 422 });
+
+  // ── P2：發布草稿給客戶（僅 status='draft' 可發布 → 'delivered' ＋ 寄驗收通知）──
+  if (body.action !== undefined) {
+    if (body.action !== "publish") {
+      return NextResponse.json({ ok: false, error: "invalid_action" }, { status: 422 });
+    }
+    const res = await publishDeliverableDraft(id);
+    if (!res.ok) {
+      if (res.reason === "not_found") {
+        return NextResponse.json({ ok: false, error: "not_found" }, { status: 404 });
+      }
+      if (res.reason === "not_draft") {
+        return NextResponse.json(
+          { ok: false, error: "not_draft", message: "只有草稿可以發布給客戶。" },
+          { status: 409 }
+        );
+      }
+      return NextResponse.json({ ok: false, error: "publish_failed" }, { status: 503 });
+    }
+    const caseRow = await getCase(res.deliverable.case_id);
+    const emailed = caseRow ? await notifyClientOfDeliverable(caseRow, res.deliverable) : false;
+    return NextResponse.json({ ok: true, deliverable: res.deliverable, emailed });
+  }
 
   const patch: Parameters<typeof updateDeliverable>[1] = {};
   if (body.title !== undefined) {
@@ -155,6 +183,7 @@ export async function PATCH(req: Request) {
     }
     patch.title = t;
   }
+  if (body.content_md !== undefined) patch.content_md = String(body.content_md ?? "");
   if (body.is_final !== undefined) patch.is_final = !!body.is_final;
   if (body.status !== undefined) {
     if (!isDeliverableStatus(body.status)) {

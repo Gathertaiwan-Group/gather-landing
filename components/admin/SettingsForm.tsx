@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { CompanyProfile } from "@/lib/settings";
+import type { RateItem } from "@/lib/pricing";
 
 const BRAND_BLUE = "#1668c2";
 
@@ -11,8 +12,12 @@ type Props = {
     company_profile: CompanyProfile;
     deposit_ratio: number; // 0~1
     contract_template: string;
+    rate_card: RateItem[];
   };
 };
+
+/** 價目表編輯列（price 用字串存以便輸入中間態；存檔時轉數字驗證）。 */
+type RateRow = { key: string; name: string; unit: string; price: string; note: string };
 
 const labelStyle: React.CSSProperties = {
   display: "block",
@@ -61,6 +66,25 @@ export default function SettingsForm({ initial }: Props) {
   // 顯示成 %（存 DB 時 /100 回 0~1）
   const [ratioPct, setRatioPct] = useState(String(Math.round((Number(initial.deposit_ratio) || 0) * 100)));
   const [template, setTemplate] = useState(initial.contract_template ?? "");
+  const [rateRows, setRateRows] = useState<RateRow[]>(
+    (initial.rate_card ?? []).map((r) => ({
+      key: r.key,
+      name: r.name,
+      unit: r.unit,
+      price: String(r.price),
+      note: r.note ?? "",
+    }))
+  );
+
+  function setRow(idx: number, patch: Partial<RateRow>) {
+    setRateRows((rows) => rows.map((r, i) => (i === idx ? { ...r, ...patch } : r)));
+  }
+  function addRow() {
+    setRateRows((rows) => [...rows, { key: "", name: "", unit: "式", price: "", note: "" }]);
+  }
+  function removeRow(idx: number) {
+    setRateRows((rows) => rows.filter((_, i) => i !== idx));
+  }
 
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -84,6 +108,21 @@ export default function SettingsForm({ initial }: Props) {
       setError("合約模板不可為空。");
       return;
     }
+    if (rateRows.length === 0) {
+      setError("價目表至少需要一個項目。");
+      return;
+    }
+    for (const r of rateRows) {
+      if (!r.name.trim() || !r.unit.trim()) {
+        setError("價目表每個項目都要有名稱與單位。");
+        return;
+      }
+      const p = Number(r.price);
+      if (!Number.isFinite(p) || p <= 0) {
+        setError(`價目表「${r.name.trim() || "未命名項目"}」的價格必須是大於 0 的數字。`);
+        return;
+      }
+    }
 
     setSaving(true);
     try {
@@ -100,6 +139,13 @@ export default function SettingsForm({ initial }: Props) {
           },
           deposit_ratio: pct / 100,
           contract_template: template,
+          rate_card: rateRows.map((r) => ({
+            key: r.key || undefined, // 空 key（新列）由後端依名稱產 slug
+            name: r.name.trim(),
+            unit: r.unit.trim(),
+            price: Number(r.price),
+            note: r.note.trim() || undefined,
+          })),
         }),
       });
       const data = await res.json().catch(() => ({}));
@@ -107,7 +153,7 @@ export default function SettingsForm({ initial }: Props) {
         setError(data?.message || data?.error || "儲存失敗，請稍後再試");
         return;
       }
-      setNotice("設定已儲存 ✅（之後新產生的合約／訂金單都會套用）");
+      setNotice("設定已儲存 ✅（之後新產生的合約／訂金單／AI 報價都會套用）");
       router.refresh();
     } catch {
       setError("連線出了點問題，請稍後再試");
@@ -172,6 +218,107 @@ export default function SettingsForm({ initial }: Props) {
           />
           <span style={{ fontSize: 15, fontWeight: 600, color: "#1d1d1f" }}>%</span>
           <span style={{ fontSize: 12.5, color: "#86868b" }}>（1 ～ 99；例：30 代表收 30% 訂金）</span>
+        </div>
+      </div>
+
+      {/* 價目表 */}
+      <div className="gt-admin-card">
+        <h2 style={{ fontSize: 17, fontWeight: 700, color: "#1d1d1f", margin: "0 0 6px" }}>價目表</h2>
+        <p style={{ fontSize: 12.5, color: "#86868b", margin: "0 0 14px" }}>
+          AI 客服報價只能依此組價（不會發明價格）。存檔立即生效，之後新產生的報價即套用，免重新部署。
+        </p>
+        <div style={{ display: "grid", gap: 8 }}>
+          {/* 表頭 */}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "minmax(160px, 1.4fr) 70px 110px minmax(140px, 2fr) 34px",
+              gap: 8,
+              alignItems: "center",
+            }}
+          >
+            {["名稱", "單位", "價格（NT$）", "備註", ""].map((h, i) => (
+              <div key={i} style={{ fontSize: 12, fontWeight: 600, color: "#6e6e73" }}>{h}</div>
+            ))}
+          </div>
+          {rateRows.map((r, idx) => (
+            <div
+              key={idx}
+              style={{
+                display: "grid",
+                gridTemplateColumns: "minmax(160px, 1.4fr) 70px 110px minmax(140px, 2fr) 34px",
+                gap: 8,
+                alignItems: "center",
+              }}
+            >
+              <input
+                value={r.name}
+                onChange={(e) => setRow(idx, { name: e.target.value })}
+                style={{ ...fieldStyle, padding: "8px 10px", fontSize: 13.5 }}
+                placeholder="例：品牌形象官網建置"
+                aria-label={`項目 ${idx + 1} 名稱`}
+              />
+              <input
+                value={r.unit}
+                onChange={(e) => setRow(idx, { unit: e.target.value })}
+                style={{ ...fieldStyle, padding: "8px 10px", fontSize: 13.5 }}
+                placeholder="式"
+                aria-label={`項目 ${idx + 1} 單位`}
+              />
+              <input
+                value={r.price}
+                onChange={(e) => setRow(idx, { price: e.target.value })}
+                inputMode="numeric"
+                style={{ ...fieldStyle, padding: "8px 10px", fontSize: 13.5, textAlign: "right" }}
+                placeholder="30000"
+                aria-label={`項目 ${idx + 1} 價格`}
+              />
+              <input
+                value={r.note}
+                onChange={(e) => setRow(idx, { note: e.target.value })}
+                style={{ ...fieldStyle, padding: "8px 10px", fontSize: 13.5 }}
+                placeholder="選填：範圍說明／內含項目"
+                aria-label={`項目 ${idx + 1} 備註`}
+              />
+              <button
+                type="button"
+                onClick={() => removeRow(idx)}
+                title="刪除此項目"
+                aria-label={`刪除項目 ${idx + 1}`}
+                style={{
+                  border: "1px solid #f0c4c0",
+                  background: "#fff",
+                  color: "#c0392b",
+                  borderRadius: 10,
+                  width: 32,
+                  height: 32,
+                  fontSize: 15,
+                  lineHeight: 1,
+                  cursor: "pointer",
+                }}
+              >
+                ×
+              </button>
+            </div>
+          ))}
+          <div>
+            <button
+              type="button"
+              onClick={addRow}
+              style={{
+                border: `1px solid ${BRAND_BLUE}`,
+                background: "#fff",
+                color: BRAND_BLUE,
+                borderRadius: 980,
+                padding: "7px 16px",
+                fontSize: 13,
+                fontWeight: 500,
+                cursor: "pointer",
+              }}
+            >
+              ＋ 新增項目
+            </button>
+          </div>
         </div>
       </div>
 

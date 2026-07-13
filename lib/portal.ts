@@ -452,6 +452,45 @@ export async function updateDeliverable(
   }
 }
 
+/**
+ * 發布草稿交付物給客戶：僅 status='draft' 可發布 → 'delivered'。
+ * 條件式 update（status 仍為 draft 才生效）——併發連點恰好一次成功，輸家回 not_draft，
+ * 呼叫端據此不重寄通知信。
+ */
+export async function publishDeliverableDraft(
+  id: string
+): Promise<{ ok: true; deliverable: Deliverable } | { ok: false; reason: "not_found" | "not_draft" | "db" }> {
+  const supabase = createAdminSupabase();
+  if (!supabase || !id) return { ok: false, reason: "db" };
+  try {
+    const { data: before } = await supabase
+      .from("deliverables")
+      .select(DELIVERABLE_SELECT)
+      .eq("id", id)
+      .maybeSingle();
+    const prev = (before as Deliverable | null) ?? null;
+    if (!prev) return { ok: false, reason: "not_found" };
+    if (prev.status !== "draft") return { ok: false, reason: "not_draft" };
+
+    const { data, error } = await supabase
+      .from("deliverables")
+      .update({ status: "delivered", updated_at: new Date().toISOString() })
+      .eq("id", id)
+      .eq("status", "draft") // 條件式：併發下只有一次轉換成功
+      .select(DELIVERABLE_SELECT)
+      .maybeSingle();
+    if (error) {
+      console.error("[portal] publishDeliverableDraft failed:", error.message);
+      return { ok: false, reason: "db" };
+    }
+    if (!data) return { ok: false, reason: "not_draft" }; // 沒搶到轉換（併發已發布）
+    return { ok: true, deliverable: data as Deliverable };
+  } catch (err) {
+    console.error("[portal] publishDeliverableDraft failed:", err);
+    return { ok: false, reason: "db" };
+  }
+}
+
 export async function deleteDeliverable(id: string): Promise<boolean> {
   const supabase = createAdminSupabase();
   if (!supabase || !id) return false;

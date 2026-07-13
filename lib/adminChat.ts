@@ -135,6 +135,23 @@ export async function getChatLogs(limit = 100): Promise<ChatLog[]> {
   }
 }
 
+/** 依 session_id 取對話（AI 初稿 generators 取 transcript 用）；找不到回 null。 */
+export async function getChatLogBySession(sessionId: string): Promise<ChatLog | null> {
+  const supabase = createAdminSupabase();
+  if (!supabase || !sessionId) return null;
+  try {
+    const { data, error } = await supabase
+      .from("ai_chat_logs")
+      .select(SELECT_COLS)
+      .eq("session_id", sessionId)
+      .maybeSingle();
+    if (error || !data) return null;
+    return data as ChatLog;
+  } catch {
+    return null;
+  }
+}
+
 /** 單段對話；找不到回 null。 */
 export async function getChatLog(id: string): Promise<ChatLog | null> {
   const supabase = createAdminSupabase();

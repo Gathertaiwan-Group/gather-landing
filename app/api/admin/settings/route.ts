@@ -7,6 +7,7 @@ import {
   DEFAULT_DEPOSIT_RATIO,
   type CompanyProfile,
 } from "@/lib/settings";
+import { getRateCard, type RateItem } from "@/lib/pricing";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -32,14 +33,47 @@ function coerceCompanyProfile(raw: unknown): CompanyProfile | null {
   };
 }
 
-// ── 讀取設定（三個 key，查無回內建預設）──
+/** 前端傳來的 rate_card → 消毒成 RateItem[]（每項 name/unit 必填、price>0；key 沿用既有或由名稱轉 slug）。不合法回 null。 */
+function coerceRateCardInput(raw: unknown): RateItem[] | null {
+  if (!Array.isArray(raw) || raw.length === 0 || raw.length > 50) return null;
+  const used = new Set<string>();
+  const slugKey = (name: string, idx: number): string => {
+    const base =
+      name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "_")
+        .replace(/^_+|_+$/g, "")
+        .slice(0, 40) || `item_${idx + 1}`;
+    let key = base;
+    let n = 2;
+    while (used.has(key)) key = `${base}_${n++}`;
+    return key;
+  };
+  const items: RateItem[] = [];
+  for (let i = 0; i < raw.length; i++) {
+    const o = (raw[i] ?? {}) as Record<string, unknown>;
+    const name = String(o.name ?? "").trim().slice(0, 100);
+    const unit = String(o.unit ?? "").trim().slice(0, 20);
+    const price = Number(o.price);
+    if (!name || !unit || !Number.isFinite(price) || price <= 0) return null;
+    const providedKey = String(o.key ?? "").trim().slice(0, 60);
+    const key = providedKey && !used.has(providedKey) ? providedKey : slugKey(name, i);
+    used.add(key);
+    const note = String(o.note ?? "").trim().slice(0, 300);
+    items.push({ key, name, unit, price: Math.round(price), ...(note ? { note } : {}) });
+  }
+  return items;
+}
+
+// ── 讀取設定（四個 key，查無回內建預設）──
 export async function GET() {
-  const [company_profile, deposit_ratio, contract_template] = await Promise.all([
+  const [company_profile, deposit_ratio, contract_template, rate_card] = await Promise.all([
     getSetting<CompanyProfile>("company_profile", DEFAULT_COMPANY_PROFILE),
     getSetting<number>("deposit_ratio", DEFAULT_DEPOSIT_RATIO),
     getSetting<string>("contract_template", DEFAULT_CONTRACT_TEMPLATE),
+    getRateCard(), // 內含形狀驗證，壞資料自動回內建預設
   ]);
-  return NextResponse.json({ ok: true, settings: { company_profile, deposit_ratio, contract_template } });
+  return NextResponse.json({ ok: true, settings: { company_profile, deposit_ratio, contract_template, rate_card } });
 }
 
 // ── 更新設定（帶哪個 key 就存哪個；deposit_ratio 驗 0 < r < 1）──
@@ -84,6 +118,21 @@ export async function PUT(req: Request) {
       );
     }
     writes.push({ key: "contract_template", value: template.slice(0, 50000) });
+  }
+
+  if (body.rate_card !== undefined) {
+    const items = coerceRateCardInput(body.rate_card);
+    if (!items) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: "invalid_rate_card",
+          message: "價目表格式不正確：至少一個項目，每項需有名稱、單位，價格必須大於 0。",
+        },
+        { status: 400 }
+      );
+    }
+    writes.push({ key: "rate_card", value: items });
   }
 
   if (writes.length === 0) {

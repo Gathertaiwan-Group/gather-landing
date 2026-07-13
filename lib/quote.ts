@@ -1,7 +1,7 @@
 import { createAdminSupabase } from "@/lib/supabase";
 import { callGeminiJSON, type ChatTurn } from "@/lib/gemini";
 import { GATHER_KB } from "@/lib/aiConfig";
-import { RATE_CARD_TEXT, CURRENCY, DEFAULT_VALID_DAYS } from "@/lib/pricing";
+import { getRateCard, rateCardText, CURRENCY, DEFAULT_VALID_DAYS } from "@/lib/pricing";
 
 export type LineItem = { description: string; qty: number; unit_price: number; amount: number };
 
@@ -120,14 +120,17 @@ const QUOTE_SCHEMA: Record<string, unknown> = {
   },
 };
 
-const QUOTE_SYSTEM = `${GATHER_KB}
+/** 報價生成 system prompt（價目表每次請求從 DB 讀，改價免重新部署）。 */
+function quoteSystem(rateText: string): string {
+  return `${GATHER_KB}
 
 你是給樂數位的報價單生成器。只能使用下方【價目表】的服務項目與單價，依對話需求挑出適用項目與合理數量，組出 line_items（unit_price 一律用價目表的數字，不得更改或發明價格）。若已列「電商網站建置」，就不要再另外加「金流／物流串接」或「電子發票串接」——這兩項已內含在電商網站總價；只有客人明確表示「只要單獨串接、沒有要做整站」時，才單獨列這兩項。若需求超出價目表，用最接近項目，並在 notes 註明「此項需再評估」。金額用新台幣整數。title 用一句話描述此報價；notes 可含範圍假設或需再確認事項。嚴格依 JSON schema 回傳。
 
 【價目表】
-${RATE_CARD_TEXT}`;
+${rateText}`;
+}
 
-/** 依對話產生報價草稿（金額鎖在價目表內）。失敗 / 無有效項目回 null。 */
+/** 依對話產生報價草稿（金額鎖在價目表內；價目表即時讀 DB，壞資料自動 fallback 內建）。失敗 / 無有效項目回 null。 */
 export async function generateQuoteDraft(
   turns: ChatTurn[]
 ): Promise<{ title: string; line_items: LineItem[]; notes: string } | null> {
@@ -135,9 +138,10 @@ export async function generateQuoteDraft(
     .map((t) => `${t.role === "user" ? "訪客" : "AI"}：${t.text}`)
     .join("\n")
     .slice(0, 4000);
+  const rateItems = await getRateCard();
   const raw = await callGeminiJSON<{ title?: string; line_items?: unknown; notes?: string }>(
     `【對話內容】\n${transcript}`,
-    { system: QUOTE_SYSTEM, schema: QUOTE_SCHEMA, maxTokens: 1200 }
+    { system: quoteSystem(rateCardText(rateItems)), schema: QUOTE_SCHEMA, maxTokens: 1200 }
   );
   if (!raw) return null;
   const line_items = normalizeLineItems(raw.line_items).filter((it) => it.unit_price > 0);
