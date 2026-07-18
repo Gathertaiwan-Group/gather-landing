@@ -1,5 +1,7 @@
 -- 給樂數位 Gather — Supabase 資料表 schema
 -- 在 Supabase Dashboard → SQL Editor 執行，或啟用專案後由 CLI 套用。
+-- 本檔可在全新 Supabase 專案 SQL Editor 一次執行完成建置（白牌部署 SOP 見 docs/DEPLOY-WHITELABEL.md）。
+-- 注意：只跑一次——重跑會重複插入下方內建作品集資料（projects 無 unique 約束）。
 -- 對應 design_handoff_gather_website/README.md §8。
 
 -- 作品集
@@ -111,6 +113,32 @@ create table if not exists ai_tool_logs (
   created_at timestamptz not null default now()
 );
 create index if not exists ai_tool_logs_created_idx on ai_tool_logs (created_at desc);
+
+-- ⚠️ 下面兩個物件缺一不可：lib/gemini.ts 的全站限流檢查在 RPC 出錯時 fail-closed，
+--    新部署若漏建 ai_usage / ai_rate_check，AI 客服與 AI 工具會被整個擋下（一律回 rate_limited）。
+
+-- AI 限流計數（rateLimit / portal 留言限流共用；(ip,day) 每日一列）
+create table if not exists ai_usage (
+  ip    text not null,
+  day   date not null default current_date,
+  count int  not null default 0,
+  primary key (ip, day)
+);
+alter table ai_usage enable row level security;
+
+-- 每日限流檢查：+1 後回傳是否 <= 上限（SECURITY DEFINER 繞過 RLS）
+create or replace function ai_rate_check(p_ip text, p_limit integer)
+returns boolean
+language plpgsql
+security definer
+as $$
+declare c int;
+begin
+  insert into ai_usage(ip, day, count) values (p_ip, current_date, 1)
+    on conflict (ip, day) do update set count = ai_usage.count + 1
+    returning count into c;
+  return c <= p_limit;
+end; $$;
 
 -- 案件管理（手動維護的案件看板）
 create table if not exists client_cases (
