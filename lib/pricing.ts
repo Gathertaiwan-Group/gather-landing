@@ -59,8 +59,13 @@ export function coerceRateCard(raw: unknown): RateItem[] | null {
 export async function getRateCard(): Promise<RateItem[]> {
   try {
     const raw = await getSetting<unknown>("rate_card", null);
-    return coerceRateCard(raw) ?? DEFAULT_RATE_CARD;
-  } catch {
+    const coerced = coerceRateCard(raw);
+    if (coerced) return coerced;
+    // 有存值卻形狀不合法＝資料壞了：記 log（否則 AI 靜默用內建暫定價，難以察覺）。
+    if (raw != null) console.warn("[pricing] settings.rate_card 形狀不合法，改用內建預設價目表");
+    return DEFAULT_RATE_CARD;
+  } catch (err) {
+    console.warn("[pricing] getRateCard 讀取失敗，改用內建預設價目表:", err);
     return DEFAULT_RATE_CARD;
   }
 }

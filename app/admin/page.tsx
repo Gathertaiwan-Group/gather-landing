@@ -5,7 +5,8 @@ import { getChatLogs, getContactCount } from "@/lib/adminChat";
 import { getCases, STATUS_COLORS } from "@/lib/adminCases";
 import { getToolCountSince } from "@/lib/adminTool";
 import { getContactSubmissionCount } from "@/lib/adminContact";
-import { getDraftQuoteCount } from "@/lib/quote";
+import { getDraftQuoteCount, moneyTWD } from "@/lib/quote";
+import { getFunnelStats, getRevenueStats, pct } from "@/lib/adminStats";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -38,18 +39,33 @@ function StatusChip({ status }: { status: string }) {
 }
 
 export default async function AdminOverviewPage() {
-  const [logs, cases, toolCount, contactCount, formCount, draftCount] = await Promise.all([
+  const [logs, cases, toolCount, contactCount, formCount, draftCount, funnel, revenue] = await Promise.all([
     getChatLogs(100),
     getCases(),
     getToolCountSince(7),
     getContactCount(),
     getContactSubmissionCount(),
     getDraftQuoteCount(),
+    getFunnelStats(),
+    getRevenueStats(),
   ]);
 
   const inProgress = cases.filter((c) => c.status === "進行中").length;
   const recentLogs = logs.slice(0, 5);
   const recentCases = cases.slice(0, 5);
+
+  // 轉換漏斗各段（對話 → … → 已結案）；bar 寬以最大段為基準，轉換率相對上一段。
+  const funnelSteps: Array<{ label: string; value: number }> = [
+    { label: "對話", value: funnel.chats },
+    { label: "有留聯", value: funnel.chatsWithContact },
+    { label: "報價", value: funnel.quotes },
+    { label: "已接受", value: funnel.quotesAccepted },
+    { label: "已簽約", value: funnel.contractsSigned },
+    { label: "已收訂金", value: funnel.depositsPaid },
+    { label: "進行中", value: funnel.casesInProgress },
+    { label: "已結案", value: funnel.casesClosed },
+  ];
+  const funnelMax = Math.max(...funnelSteps.map((s) => s.value), 1);
 
   return (
     <>
@@ -74,6 +90,45 @@ export default async function AdminOverviewPage() {
           <StatCard label="總案件數" value={cases.length} href="/admin/cases" />
           <StatCard label="本週 AI 工具試用" value={toolCount} hint="近 7 天" />
         </div>
+
+        {/* 營收概況（錢）*/}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit,minmax(180px,1fr))",
+            gap: 16,
+            marginBottom: 28,
+          }}
+        >
+          <StatCard label="本月營收" value={moneyTWD(revenue.paidThisMonth)} hint="本月已收款（台北時區）" />
+          <StatCard label="應收帳款" value={moneyTWD(revenue.receivable)} hint="待付款請款單合計" />
+          <StatCard label="累計營收" value={moneyTWD(revenue.paidAllTime)} hint="歷來已收款總額" />
+        </div>
+
+        {/* 轉換漏斗（對話 → … → 已結案；bar 相對最大段、轉換率相對上一段）*/}
+        <section className="gt-admin-card" style={{ marginBottom: 28 }}>
+          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 16 }}>
+            <h2 style={{ fontSize: 18, fontWeight: 700, color: "#1d1d1f", margin: 0 }}>轉換漏斗</h2>
+            <span style={{ fontSize: 12.5, color: "#86868b" }}>右側百分比＝相對上一段轉換率</span>
+          </div>
+          <div className="gt-funnel">
+            {funnelSteps.map((step, i) => {
+              const prev = i > 0 ? funnelSteps[i - 1].value : null;
+              const rate = prev !== null ? pct(step.value, prev) : null;
+              const barPct = pct(step.value, funnelMax);
+              return (
+                <div className="gt-funnel-row" key={step.label}>
+                  <span className="gt-funnel-label">{step.label}</span>
+                  <div className="gt-funnel-track">
+                    <div className="gt-funnel-fill" style={{ width: `${barPct}%` }} />
+                  </div>
+                  <span className="gt-funnel-count">{step.value}</span>
+                  <span className="gt-funnel-rate">{rate !== null ? `${rate}%` : "—"}</span>
+                </div>
+              );
+            })}
+          </div>
+        </section>
 
         <div style={{ display: "grid", gap: 20 }}>
           {/* 最近諮詢 */}

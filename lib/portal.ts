@@ -472,9 +472,13 @@ export async function publishDeliverableDraft(
     if (!prev) return { ok: false, reason: "not_found" };
     if (prev.status !== "draft") return { ok: false, reason: "not_draft" };
 
+    // 發布給客戶前，去掉內部草稿標記「【AI 初稿】」前綴（避免 portal 對客戶揭露 AI 代筆）。
+    // 老闆若先自行改過標題就是無前綴的 no-op；若標題只剩前綴則保留原標題不清空。
+    const cleanTitle = prev.title.replace(/^【AI 初稿】\s*/, "").trim() || prev.title;
+
     const { data, error } = await supabase
       .from("deliverables")
-      .update({ status: "delivered", updated_at: new Date().toISOString() })
+      .update({ status: "delivered", title: cleanTitle, updated_at: new Date().toISOString() })
       .eq("id", id)
       .eq("status", "draft") // 條件式：併發下只有一次轉換成功
       .select(DELIVERABLE_SELECT)

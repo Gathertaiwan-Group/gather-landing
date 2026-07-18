@@ -424,6 +424,61 @@ button {
   }
 }
 
+/* ── 後台營運漏斗（.gt-funnel-*；純 CSS 水平 bar，無圖表套件）── */
+.gt-funnel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.gt-funnel-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.gt-funnel-label {
+  flex: 0 0 64px;
+  font-size: 13.5px;
+  color: #6e6e73;
+  white-space: nowrap;
+}
+.gt-funnel-track {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 22px;
+  background: #eef1f5;
+  border-radius: 980px;
+  overflow: hidden;
+}
+.gt-funnel-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #1668c2, #3a8ee0);
+  border-radius: 980px;
+  transition: width 0.3s ease;
+}
+.gt-funnel-count {
+  flex: 0 0 auto;
+  min-width: 40px;
+  text-align: right;
+  font-size: 15px;
+  font-weight: 700;
+  color: #1d1d1f;
+  font-variant-numeric: tabular-nums;
+}
+.gt-funnel-rate {
+  flex: 0 0 auto;
+  min-width: 44px;
+  text-align: right;
+  font-size: 12.5px;
+  color: #86868b;
+  font-variant-numeric: tabular-nums;
+}
+@media (max-width: 768px) {
+  .gt-funnel-label {
+    flex-basis: 52px;
+    font-size: 12.5px;
+  }
+}
+
 /* ─────────────────────────────────────────────────────────────
    公開報價頁 /quote/[token]（發票風、品牌藍 #1668c2）
    ───────────────────────────────────────────────────────────── */

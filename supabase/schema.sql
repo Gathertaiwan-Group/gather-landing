@@ -305,3 +305,7 @@ create index if not exists deliverables_case_idx on deliverables (case_id, creat
 alter table deliverables enable row level security;
 
 alter table client_cases add column if not exists portal_token text unique;
+
+-- P3 生命週期 cron 補齊：最終交付請驗收提醒（單次去重）＋結案後回訪信（單次去重）
+alter table deliverables add column if not exists review_reminded_at timestamptz; -- 最終交付逾期未驗收：cron 寄客人提醒一次
+alter table client_cases add column if not exists revisit_sent_at    timestamptz; -- 結案 N 天後：cron 寄客人回訪信一次

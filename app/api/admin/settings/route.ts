@@ -54,13 +54,15 @@ function coerceRateCardInput(raw: unknown): RateItem[] | null {
     const o = (raw[i] ?? {}) as Record<string, unknown>;
     const name = String(o.name ?? "").trim().slice(0, 100);
     const unit = String(o.unit ?? "").trim().slice(0, 20);
-    const price = Number(o.price);
-    if (!name || !unit || !Number.isFinite(price) || price <= 0) return null;
+    // 先四捨五入再驗：避免 0<price<0.5（例如打成 0.3）通過檢查卻被 round 成 0，
+    // 讀取端 coerceRateCard 又因 price<=0 丟棄「整份」自訂價目表、靜默退回內建預設。
+    const price = Math.round(Number(o.price));
+    if (!name || !unit || !Number.isFinite(price) || price < 1 || price > 100_000_000) return null;
     const providedKey = String(o.key ?? "").trim().slice(0, 60);
     const key = providedKey && !used.has(providedKey) ? providedKey : slugKey(name, i);
     used.add(key);
     const note = String(o.note ?? "").trim().slice(0, 300);
-    items.push({ key, name, unit, price: Math.round(price), ...(note ? { note } : {}) });
+    items.push({ key, name, unit, price, ...(note ? { note } : {}) });
   }
   return items;
 }

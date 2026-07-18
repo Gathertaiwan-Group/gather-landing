@@ -465,3 +465,44 @@ export async function sendOwnerEventNotice(subject: string, lines: string[]): Pr
   </div>`;
   return postEmail({ to, subject, html });
 }
+
+// ─────────────────────────────────────────────────────────────
+// P3 生命週期補齊：最終交付逾期未驗收提醒／結案後回訪 Email（皆寄給客人）
+// ─────────────────────────────────────────────────────────────
+
+/** 寄「最終交付逾期未驗收提醒」給客人（cron 單次；portalUrl 為 /portal/<token>）。客人沒 Email → false。 */
+export async function sendReviewReminderEmail(caseRow: ClientCase, portalUrl: string): Promise<boolean> {
+  if (!caseRow.contact_email) return false;
+  const hi = caseRow.client_name ? `${esc(caseRow.client_name)} 您好，` : "您好，";
+  const html = `<div style="font-family:-apple-system,BlinkMacSystemFont,'Noto Sans TC',sans-serif;max-width:560px;margin:0 auto">
+    <h2 style="color:#1668c2;margin:0 0 4px;font-size:20px">📦 提醒：您的專案還有交付內容待驗收</h2>
+    <p style="color:#1d1d1f;font-size:14.5px;line-height:1.7;margin:14px 0">${hi}您的專案「${esc(caseRow.title)}」已完成最終交付，還沒收到您的驗收確認。麻煩撥空點下方查看與驗收，通過後我們就會進行尾款結算並正式結案；若有需要調整的地方，也可以直接在頁面上留言給我們 🙂</p>
+    <p style="text-align:center;margin:14px 0 18px">${quoteButton(portalUrl, "查看並驗收")}</p>
+    <p style="font-size:12.5px;color:#86868b;margin:8px 0 0">— 給樂數位 Gather</p>
+  </div>`;
+  return postEmail({
+    to: caseRow.contact_email,
+    subject: `提醒：您的專案「${caseRow.title}」還有交付內容待驗收`,
+    html,
+    replyTo: process.env.CONTACT_NOTIFY_TO,
+  });
+}
+
+/** 寄「結案後回訪」給客人（cron 單次；含官網/客服連結）。客人沒 Email → false。 */
+export async function sendRevisitEmail(caseRow: ClientCase): Promise<boolean> {
+  if (!caseRow.contact_email) return false;
+  const hi = caseRow.client_name ? `${esc(caseRow.client_name)} 您好，` : "您好，";
+  const html = `<div style="font-family:-apple-system,BlinkMacSystemFont,'Noto Sans TC',sans-serif;max-width:560px;margin:0 auto">
+    <h2 style="color:#1668c2;margin:0 0 4px;font-size:20px">👋 最近使用得還順利嗎？</h2>
+    <p style="color:#1d1d1f;font-size:14.5px;line-height:1.7;margin:14px 0">${hi}距離您的專案「${esc(caseRow.title)}」結案已經過了一陣子，想關心一下近況——系統運作都還順利嗎？使用上有沒有遇到什麼狀況，或想再優化、擴充的地方？</p>
+    <p style="color:#1d1d1f;font-size:14.5px;line-height:1.7;margin:14px 0">不論是新需求、功能調整，或想聊聊下一步的規劃，直接回覆這封信就可以；也歡迎到官網用線上客服跟我們聊聊 🙂</p>
+    <p style="text-align:center;margin:14px 0 18px">${quoteButton(SITE_URL, "前往官網")}</p>
+    <p style="font-size:12.5px;color:#86868b;margin:8px 0 0">— 給樂數位 Gather</p>
+  </div>`;
+  return postEmail({
+    to: caseRow.contact_email,
+    subject: `${caseRow.client_name ? `${caseRow.client_name} ` : ""}您好，最近專案使用得還順利嗎？`,
+    html,
+    replyTo: process.env.CONTACT_NOTIFY_TO,
+  });
+}
