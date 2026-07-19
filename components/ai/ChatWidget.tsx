@@ -144,7 +144,6 @@ export default function ChatWidget() {
             </span>
             <div>
               <div style={{ fontWeight: 600, fontSize: 15 }}>給樂 AI 助理</div>
-              <div style={{ fontSize: 11, color: "rgba(255,255,255,.6)" }}>由 Gemini 驅動 · 即時回覆</div>
             </div>
           </div>
 
