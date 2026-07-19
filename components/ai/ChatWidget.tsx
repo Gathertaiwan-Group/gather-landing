@@ -12,12 +12,25 @@ const GREETING =
   "嗨！我是給樂數位的 AI 助理 👋 想做網站、AI CRM 或金流串接，都可以問我——想知道做一個大概多少錢，也可以直接問，我還能當場幫你安排一份初步報價 💬";
 const SUGGESTIONS = ["你們提供哪些服務？", "跟一般網頁公司差在哪？", "AI 賦能能幫我做什麼？", "怎麼開始合作？"];
 
+type AiStatus = "checking" | "online" | "offline";
+const STATUS_TEXT: Record<AiStatus, string> = {
+  checking: "檢查連線中…",
+  online: "上線中",
+  offline: "目前無法回應",
+};
+const STATUS_COLOR: Record<AiStatus, string> = {
+  checking: "#c7cdd6",
+  online: "#31d158",
+  offline: "#ff5a52",
+};
+
 export default function ChatWidget() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [msgs, setMsgs] = useState<Msg[]>([{ role: "model", text: GREETING }]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState<AiStatus>("checking");
   const scrollRef = useRef<HTMLDivElement>(null);
   const sessionIdRef = useRef<string>("");
 
@@ -30,6 +43,23 @@ export default function ChatWidget() {
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [msgs, loading, open]);
+
+  // 開啟聊天匡時查一次 AI 健康狀態（server 端已快取 60 秒，開關不會狂打 Google）。
+  useEffect(() => {
+    if (!open) return;
+    let cancelled = false;
+    fetch("/api/ai/health")
+      .then((r) => r.json())
+      .then((d) => {
+        if (!cancelled) setStatus(d?.ok ? "online" : "offline");
+      })
+      .catch(() => {
+        if (!cancelled) setStatus("offline");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [open]);
 
   // 允許站上其他元件（例如 /ai 的 AI 客服卡）以事件開啟聊天
   useEffect(() => {
@@ -63,6 +93,10 @@ export default function ChatWidget() {
         body: JSON.stringify({ messages: next, sessionId: sessionIdRef.current }),
       });
       const data = await res.json();
+      // 真實成敗即時反映到狀態列：成功→上線；伺服器 502 真故障→離線；
+      // rate_limited 屬「配額用完」非服務故障，不改狀態（訊息泡泡已說明）。
+      if (data.ok) setStatus("online");
+      else if (data.error === "ai_error") setStatus("offline");
       setMsgs((m) => [
         ...m,
         {
@@ -72,6 +106,7 @@ export default function ChatWidget() {
       ]);
       if (data.ok && data.quotePending) void generateQuote();
     } catch {
+      setStatus("offline");
       setMsgs((m) => [...m, { role: "model", text: "連線出了點問題，請稍後再試，或到官網下方填聯絡表單。" }]);
     } finally {
       setLoading(false);
@@ -144,6 +179,29 @@ export default function ChatWidget() {
             </span>
             <div>
               <div style={{ fontWeight: 600, fontSize: 15 }}>給樂 AI 助理</div>
+              <div
+                style={{
+                  fontSize: 11,
+                  color: "rgba(255,255,255,.72)",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 5,
+                  marginTop: 2,
+                }}
+              >
+                <span
+                  aria-hidden
+                  style={{
+                    width: 7,
+                    height: 7,
+                    borderRadius: "50%",
+                    background: STATUS_COLOR[status],
+                    boxShadow: status === "online" ? `0 0 6px ${STATUS_COLOR.online}` : "none",
+                    flexShrink: 0,
+                  }}
+                />
+                {STATUS_TEXT[status]}
+              </div>
             </div>
           </div>
 

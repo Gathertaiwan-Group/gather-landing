@@ -142,6 +142,34 @@ export async function callGeminiJSON<T = unknown>(
   }
 }
 
+// ── AI 健康檢查（聊天匡狀態指示用）──
+// 輕量 GET models/<model>：驗 GEMINI_API_KEY 有效＋Gemini 可達（不做生成、不消耗每日配額）。
+// 結果快取 60 秒，避免每次開聊天匡都打 Google。
+let healthCache: { ok: boolean; at: number } | null = null;
+const HEALTH_TTL_MS = 60_000;
+
+export async function geminiHealthy(): Promise<boolean> {
+  const now = Date.now();
+  if (healthCache && now - healthCache.at < HEALTH_TTL_MS) return healthCache.ok;
+  const key = process.env.GEMINI_API_KEY;
+  if (!key) {
+    healthCache = { ok: false, at: now };
+    return false;
+  }
+  try {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}?key=${key}`, {
+      method: "GET",
+      signal: AbortSignal.timeout(6000),
+    });
+    const ok = res.ok;
+    healthCache = { ok, at: now };
+    return ok;
+  } catch {
+    healthCache = { ok: false, at: now };
+    return false;
+  }
+}
+
 /** 統一的 API route 錯誤回應（友善訊息 + 導 LINE）。 */
 export function aiErrorResponse(err: unknown): { status: number; body: Record<string, unknown> } {
   if (err instanceof RateLimitError) {
