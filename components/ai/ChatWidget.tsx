@@ -9,7 +9,7 @@ const BRAND_BLUE = "#1668c2";
 type Msg = { role: "user" | "model"; text: string };
 
 const GREETING =
-  "嗨！我是給樂數位的 AI 助理 👋 想了解客製化網站、AI CRM、金流物流或 SEO，都可以問我。";
+  "嗨！我是給樂數位的 AI 助理 👋 想做網站、AI CRM 或金流串接，都可以問我——想知道做一個大概多少錢，也可以直接問，我還能當場幫你安排一份初步報價 💬";
 const SUGGESTIONS = ["你們提供哪些服務？", "跟一般網頁公司差在哪？", "AI 賦能能幫我做什麼？", "怎麼開始合作？"];
 
 export default function ChatWidget() {

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { callGeminiChat, rateLimit, clientIp, aiErrorResponse, type ChatTurn } from "@/lib/gemini";
-import { CHAT_SYSTEM } from "@/lib/aiConfig";
+import { chatSystem } from "@/lib/aiConfig";
+import { getRateCard, rateCardText } from "@/lib/pricing";
 import { logChat } from "@/lib/adminChat";
 import { hasQuoteKeyword, classifyQuoteReady, getQuoteIdBySession } from "@/lib/quote";
 
@@ -34,7 +35,11 @@ export async function POST(req: Request) {
   }
 
   try {
-    const reply = await callGeminiChat(turns, { system: CHAT_SYSTEM, maxTokens: 600 });
+    // 價目表即時從 DB 注入（後台改價 → 聊天立即講新價，免部署）
+    const reply = await callGeminiChat(turns, {
+      system: chatSystem(rateCardText(await getRateCard())),
+      maxTokens: 600,
+    });
     // 記錄整段對話 + 萃取聯絡資訊（後台諮詢紀錄用）。
     // 這裡 await：serverless 對「回應後才跑的非同步工作」不保證跑完，
     // 而萃取/寫入是核心功能，必須確保完成；失敗吞掉、不影響回覆。
