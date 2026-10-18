@@ -41,7 +41,7 @@ npm run dev                  # http://localhost:3000
 
 ## Supabase
 
-Gather 正式專案 ref：`iyslargzomlvxvilsopo`（Tokyo，ACTIVE，已接妥）。
+Gather 正式專案 ref：`ozwftlkgqmewtadypsfi`（Tokyo，2026-10-18 起與 gather-builder 共用的整合庫；舊庫 `iyslargzomlvxvilsopo` 已停用）。
 
 **在新專案重建 DB：**
 1. SQL Editor 執行 `supabase/schema.sql`（一次執行完成建置；只跑一次）。
