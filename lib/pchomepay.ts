@@ -1,4 +1,5 @@
 import { randomBytes } from "node:crypto";
+import { classifyPchomepayQuery } from "./pchomepay-status";
 
 // PChomePay 支付連 付款閘道模組（零新套件，一律用 fetch）。
 // env：PCHOMEPAY_APP_ID / PCHOMEPAY_SECRET / PCHOMEPAY_SANDBOX（"true"=測試環境）/
@@ -149,7 +150,7 @@ export async function createGatewayCheckout(input: {
  */
 export async function queryGatewayPayment(
   orderNo: string
-): Promise<{ status_code?: string; pay_type?: string; amount?: number; payment_info?: Record<string, unknown> } | null> {
+): Promise<{ status?: string; status_code?: string; pay_type?: string; amount?: number; payment_info?: Record<string, unknown> } | null> {
   if (!pchomepayConfigured() || !orderNo) return null;
   try {
     const res = await pcpayFetch(`/v1/payment/${encodeURIComponent(orderNo)}`, { method: "GET" });
@@ -161,6 +162,8 @@ export async function queryGatewayPayment(
     }
     const data = JSON.parse(text) as Record<string, unknown>;
     // 防禦性正規化：status_code/pay_type 可能是數字或陣列。
+    // `status`（S/F/P）才是權威付款狀態；成功時 status_code 常為 null。見 lib/pchomepay-status.ts。
+    const status = data.status != null ? String(data.status).trim().toUpperCase() : undefined;
     const statusCode = data.status_code != null ? String(data.status_code) : undefined;
     const payType = Array.isArray(data.pay_type)
       ? data.pay_type.map(String).join(",")
@@ -168,6 +171,7 @@ export async function queryGatewayPayment(
         ? String(data.pay_type)
         : undefined;
     return {
+      status,
       status_code: statusCode,
       pay_type: payType,
       amount: data.amount != null && Number.isFinite(Number(data.amount)) ? Number(data.amount) : undefined,
@@ -182,9 +186,8 @@ export async function queryGatewayPayment(
   }
 }
 
-/** 是否為「已付款」狀態：notify_type ∈ {order_paid, order_confirm} 且 status_code ∈ {"S","00","1"}。 */
-export function isPaidStatus(notifyType: string, statusCode?: string): boolean {
+/** 是否為「已付款」狀態：notify_type ∈ {order_paid, order_confirm} 且查單判定為 paid（status==="S" 或舊式 status_code ∈ {"S","00","1"}）。 */
+export function isPaidStatus(notifyType: string, statusCode?: string, status?: string): boolean {
   const typeOk = notifyType === "order_paid" || notifyType === "order_confirm";
-  const codeOk = statusCode === "S" || statusCode === "00" || statusCode === "1";
-  return typeOk && codeOk;
+  return typeOk && classifyPchomepayQuery({ status, status_code: statusCode }) === "paid";
 }

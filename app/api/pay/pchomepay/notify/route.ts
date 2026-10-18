@@ -1,6 +1,7 @@
 import { createAdminSupabase } from "@/lib/supabase";
 import { markPaymentPaid, recordAtmInfo, type Payment } from "@/lib/payment";
 import { queryGatewayPayment } from "@/lib/pchomepay";
+import { classifyPchomepayQuery } from "@/lib/pchomepay-status";
 import { handlePaymentPaid } from "@/lib/lifecycle";
 import { sendOwnerEventNotice } from "@/lib/resend";
 import { moneyTWD } from "@/lib/quote";
@@ -100,7 +101,9 @@ export async function POST(req: Request) {
 
     // ── 分支 1：權威已付款——回查 status_code 達 paid 即標記。
     //    notify_type 無簽章、不可信，因此對「標記付款」沒有否決權（只影響 ATM 取號等輔助分支）。
-    const authoritativePaid = ["S", "00", "1"].includes(String(query.status_code ?? ""));
+    //    權威狀態看 query.status（"S"）或舊式 status_code；見 lib/pchomepay-status.ts（Realreal 2026-07-12 事件）。
+    const queryState = classifyPchomepayQuery(query);
+    const authoritativePaid = queryState === "paid";
     if (authoritativePaid) {
       // 權威回應缺 amount → 無法比對，回 500 讓閘道重試（寧可重試也不能靜默漏掉真成交）。
       if (query.amount == null || !Number.isFinite(Number(query.amount))) {
@@ -166,7 +169,7 @@ export async function POST(req: Request) {
     }
 
     // ── 分支 3：失效（order_expired 或權威 status_code === "F"）→ 僅 pending → failed ──
-    if (notifyType === "order_expired" || query.status_code === "F") {
+    if (notifyType === "order_expired" || queryState === "failed") {
       if (payment.status === "pending") {
         const supabase = createAdminSupabase();
         if (supabase) {
