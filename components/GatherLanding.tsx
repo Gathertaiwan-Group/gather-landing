@@ -717,7 +717,7 @@ export default function GatherLanding({
               </div>
             </div>
 
-            {/* 05 AI CRM（深色大卡，橘光暈） */}
+            {/* 02 AI CRM（深色大卡，橘光暈） */}
             <div
               data-reveal=""
               style={{
@@ -757,7 +757,7 @@ export default function GatherLanding({
                     marginBottom: 16,
                   }}
                 >
-                  05
+                  02
                 </div>
                 <h3
                   style={{
@@ -789,10 +789,10 @@ export default function GatherLanding({
               title="電子發票串接"
               desc="自動化開立、作廢與管理，合規又省力。"
             />
-            {/* 02 部落格系統 */}
+            {/* 05 部落格系統 */}
             <ServiceCardSmall
               span={2}
-              num="02"
+              num="05"
               title="部落格系統"
               desc="穩固的內容管理架構，持續累積品牌聲量。"
             />

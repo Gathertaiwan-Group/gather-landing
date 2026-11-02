@@ -71,6 +71,30 @@ export default function ChatWidget() {
     return () => window.removeEventListener("gather:open-chat", openHandler);
   }, []);
 
+  // 全站「聯絡我們／預約諮詢」等指向 #contact 的連結，一律改成開啟 AI 對話匡（由 AI 直接收單）。
+  // 例外：帶 data-contact-form 的連結（例如對話匡底部「填聯絡表單」）照原本捲到表單。
+  useEffect(() => {
+    if (pathname?.startsWith("/admin")) return;
+    const onClick = (e: MouseEvent) => {
+      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      const a = (e.target as Element | null)?.closest?.("a");
+      if (!a || a.hasAttribute("data-contact-form")) return;
+      let url: URL;
+      try {
+        url = new URL(a.getAttribute("href") ?? "", window.location.href);
+      } catch {
+        return;
+      }
+      const sameSite = url.host === window.location.host || url.hostname.endsWith("gathertaiwan.com");
+      if (!sameSite || url.hash !== "#contact") return;
+      e.preventDefault();
+      setOpen(true);
+      trackEvent("ai_chat_open", { source: "contact_cta" });
+    };
+    document.addEventListener("click", onClick, true);
+    return () => document.removeEventListener("click", onClick, true);
+  }, [pathname]);
+
   function toggle() {
     setOpen((o) => {
       if (!o) trackEvent("ai_chat_open", { source: "fab" });
@@ -299,7 +323,7 @@ export default function ChatWidget() {
           </form>
           <div style={{ fontSize: 11, color: "#9aa3b0", textAlign: "center", padding: "0 12px 10px", background: "#fff" }}>
             AI 生成內容僅供參考，正式諮詢請{" "}
-            <a href="/#contact" style={{ color: BRAND_BLUE }}>
+            <a href="/#contact" data-contact-form="" onClick={() => setOpen(false)} style={{ color: BRAND_BLUE }}>
               填聯絡表單
             </a>
           </div>
