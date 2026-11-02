@@ -397,7 +397,7 @@ export default function ChatWidget() {
             </button>
           </form>
           <div style={{ fontSize: 11, color: "#9aa3b0", textAlign: "center", padding: "0 12px 10px", background: "#fff" }}>
-            AI 回覆僅供參考・想找真人？{" "}
+            想找真人？{" "}
             <a
               href={LINE_OA_URL}
               target="_blank"
