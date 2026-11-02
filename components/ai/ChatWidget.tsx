@@ -31,6 +31,7 @@ export default function ChatWidget() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<AiStatus>("checking");
+  const [isMobile, setIsMobile] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const sessionIdRef = useRef<string>("");
 
@@ -150,12 +151,54 @@ export default function ChatWidget() {
     }
   }
 
+  // 行動版行銷頁（首頁、部落格、AI 實驗室）：底部固定「免費詢問」列取代小泡泡，提高詢問轉換。
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 600px)");
+    const update = () => setIsMobile(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+  const marketingPage = pathname === "/" || !!pathname?.startsWith("/blog") || pathname === "/ai";
+  const showBar = isMobile && marketingPage && !open;
+  useEffect(() => {
+    document.body.classList.toggle("gt-has-cta-bar", showBar);
+    return () => document.body.classList.remove("gt-has-cta-bar");
+  }, [showBar]);
+
   // 後台頁面不顯示對外的 AI 客服浮動按鈕
   if (pathname?.startsWith("/admin")) return null;
 
   return (
     <>
+      {showBar && (
+        <button
+          type="button"
+          onClick={toggle}
+          aria-label="開啟 AI 助理，免費詢問報價"
+          style={{
+            position: "fixed",
+            left: 12,
+            right: 12,
+            bottom: "calc(12px + env(safe-area-inset-bottom))",
+            zIndex: 60,
+            height: 54,
+            border: "none",
+            borderRadius: 980,
+            background: BRAND_BLUE,
+            color: "#fff",
+            fontSize: 16,
+            fontWeight: 600,
+            boxShadow: "0 10px 30px rgba(22,104,194,.4)",
+            cursor: "pointer",
+          }}
+        >
+          💬 免費詢問・AI 當場估價
+        </button>
+      )}
+
       {/* 浮動按鈕 */}
+      {!showBar && (
       <button
         aria-label={open ? "關閉 AI 助理" : "開啟 AI 助理"}
         onClick={toggle}
@@ -181,6 +224,7 @@ export default function ChatWidget() {
       >
         {open ? "✕" : "💬"}
       </button>
+      )}
 
       {open && (
         <div className="gt-chat-panel" role="dialog" aria-label="給樂 AI 助理">

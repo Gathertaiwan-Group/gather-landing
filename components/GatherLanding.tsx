@@ -354,9 +354,7 @@ export default function GatherLanding({
               color: "#6e6e73",
             }}
           >
-            客製化網站、AI 賦能的 CRM 系統、金流、物流與電子發票串接
-            <br />
-            讓智慧技術與精緻設計精準結合，一站到位。
+            網站 · AI CRM · 金流物流發票，一站到位
           </p>
           <div
             data-reveal=""
@@ -383,9 +381,9 @@ export default function GatherLanding({
                 textDecoration: "none",
               }}
             >
-              預約諮詢
+              免費詢問報價
             </a>
-            <a
+            <a className="gt-m-hide"
               href="#services"
               onMouseEnter={onTextEnter}
               onMouseLeave={onTextLeave}
@@ -469,7 +467,7 @@ export default function GatherLanding({
         />
         <div style={{ maxWidth: 1160, margin: "0 auto", position: "relative" }}>
           <div data-reveal="" style={{ textAlign: "center", marginBottom: "clamp(40px,7vw,64px)" }}>
-            <div style={{ fontSize: 15, fontWeight: 600, letterSpacing: ".04em", color: "#5aa0ec", marginBottom: 20 }}>
+            <div className="gt-eyebrow" style={{ fontSize: 15, fontWeight: 600, letterSpacing: ".04em", color: "#5aa0ec", marginBottom: 20 }}>
               Why AI-Powered
             </div>
             <h2
@@ -483,7 +481,7 @@ export default function GatherLanding({
             >
               AI 賦能，不只是加個聊天機器人
             </h2>
-            <p
+            <p className="gt-m-hide"
               style={{
                 margin: "22px auto 0",
                 maxWidth: 620,
@@ -523,7 +521,7 @@ export default function GatherLanding({
             ))}
           </div>
 
-          <p
+          <p className="gt-m-hide"
             data-reveal=""
             style={{ textAlign: "center", marginTop: "clamp(34px,6vw,50px)", fontSize: 17, color: "rgba(245,245,247,.85)" }}
           >
@@ -565,7 +563,7 @@ export default function GatherLanding({
             data-reveal=""
             style={{ textAlign: "center", marginBottom: "clamp(40px,7vw,64px)" }}
           >
-            <div
+            <div className="gt-eyebrow"
               style={{
                 fontSize: 15,
                 fontWeight: 600,
@@ -588,7 +586,7 @@ export default function GatherLanding({
             >
               完整的數位化能力
             </h2>
-            <p
+            <p className="gt-m-hide"
               style={{
                 margin: "22px auto 0",
                 maxWidth: 560,
@@ -759,7 +757,7 @@ export default function GatherLanding({
       >
         <div style={{ maxWidth: 1160, margin: "0 auto" }}>
           <div data-reveal="" style={{ textAlign: "center", marginBottom: "clamp(38px,7vw,56px)" }}>
-            <div style={{ fontSize: 15, fontWeight: 600, letterSpacing: ".04em", color: BRAND_BLUE, marginBottom: 20 }}>
+            <div className="gt-eyebrow" style={{ fontSize: 15, fontWeight: 600, letterSpacing: ".04em", color: BRAND_BLUE, marginBottom: 20 }}>
               Why Gather
             </div>
             <h2
@@ -772,9 +770,9 @@ export default function GatherLanding({
                 color: "#1d1d1f",
               }}
             >
-              為什麼給樂跟別人不一樣
+              為什麼選給樂
             </h2>
-            <p style={{ margin: "22px auto 0", maxWidth: 600, fontSize: 18, lineHeight: 1.7, color: "#6e6e73" }}>
+            <p className="gt-m-hide" style={{ margin: "22px auto 0", maxWidth: 600, fontSize: 18, lineHeight: 1.7, color: "#6e6e73" }}>
               市面上多的是「做個網站」或「租一套系統」。給樂給你的，是一套真正屬於你、還會替你賺錢的數位系統。
             </p>
           </div>
@@ -863,7 +861,7 @@ export default function GatherLanding({
             data-reveal=""
             style={{ textAlign: "center", marginBottom: "clamp(38px,7vw,60px)" }}
           >
-            <div
+            <div className="gt-eyebrow"
               style={{
                 fontSize: 15,
                 fontWeight: 600,
@@ -915,7 +913,7 @@ export default function GatherLanding({
         }}
       >
         <div data-reveal="" style={{ maxWidth: 820, margin: "0 auto" }}>
-          <div
+          <div className="gt-eyebrow"
             style={{
               fontSize: 15,
               fontWeight: 600,
@@ -938,7 +936,7 @@ export default function GatherLanding({
           >
             已經有想法了嗎？
           </h2>
-          <p
+          <p className="gt-m-hide"
             style={{
               margin: "0 auto 44px",
               maxWidth: 480,

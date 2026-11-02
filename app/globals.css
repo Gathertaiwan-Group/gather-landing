@@ -1382,3 +1382,100 @@ button {
     text-align: center;
   }
 }
+
+/* ══ 行動版精簡（≤600px）：少字、短頁、處處有詢問入口 ══ */
+@media (max-width: 600px) {
+  /* 英文小標、次要說明段落：手機隱藏 */
+  .gt-eyebrow,
+  .gt-m-hide {
+    display: none !important;
+  }
+  /* 區塊上下留白收斂 */
+  section[id]:not(#top) {
+    padding-top: 64px !important;
+    padding-bottom: 64px !important;
+  }
+  /* 服務：2 欄小方塊，只留編號＋標題 */
+  .gt-services-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
+  }
+  .gt-services-grid > * {
+    padding: 18px 16px !important;
+    border-radius: 20px !important;
+    justify-content: flex-start !important;
+  }
+  .gt-services-grid h3 {
+    font-size: 16px !important;
+    line-height: 1.35 !important;
+    margin: 0 !important;
+  }
+  .gt-services-grid p {
+    display: none !important;
+  }
+  /* 案例：橫向滑動，一次一張＋露出下一張 */
+  .gt-work-grid {
+    display: flex !important;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    gap: 14px !important;
+    margin: 0 -6vw;
+    padding: 0 6vw 10px;
+    scrollbar-width: none;
+  }
+  .gt-work-grid::-webkit-scrollbar {
+    display: none;
+  }
+  .gt-work-grid > * {
+    flex: 0 0 82%;
+    scroll-snap-align: center;
+  }
+  /* 對比：手機只列給樂的答案（勾選清單） */
+  .gt-compare-card-o {
+    display: none;
+  }
+  .gt-compare-cards {
+    gap: 0 !important;
+    background: rgba(22, 104, 194, 0.06);
+    border-radius: 20px;
+    padding: 6px 18px;
+  }
+  .gt-compare-card {
+    background: none !important;
+    border: none !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06) !important;
+    border-radius: 0 !important;
+    padding: 14px 0 14px 30px !important;
+    position: relative;
+  }
+  .gt-compare-card:last-child {
+    border-bottom: none !important;
+  }
+  .gt-compare-card::before {
+    content: "✓";
+    position: absolute;
+    left: 2px;
+    top: 14px;
+    color: #1668c2;
+    font-weight: 700;
+    font-size: 17px;
+  }
+  .gt-compare-card-k {
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    color: #86868b !important;
+    margin-bottom: 2px !important;
+  }
+  .gt-compare-card-g {
+    background: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  .gt-compare-card-g span {
+    display: none !important;
+  }
+  /* 底部固定詢問列出現時，頁尾留空間 */
+  body.gt-has-cta-bar {
+    padding-bottom: 76px;
+  }
+}
