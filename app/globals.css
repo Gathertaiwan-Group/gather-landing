@@ -238,63 +238,6 @@ button {
   border-bottom-color: transparent;
 }
 
-/* 手機：對比表改為卡片（給樂答案優先），桌機維持表格 */
-.gt-compare-cards {
-  display: none;
-}
-@media (max-width: 700px) {
-  .gt-compare-wrap {
-    display: none;
-  }
-  .gt-compare-cards {
-    display: grid;
-    gap: 14px;
-  }
-  .gt-compare-card {
-    background: #fff;
-    border: 1px solid rgba(0, 0, 0, 0.08);
-    border-radius: 18px;
-    padding: 18px 18px 14px;
-    text-align: left;
-  }
-  .gt-compare-card-k {
-    font-size: 15px;
-    font-weight: 700;
-    color: #1d1d1f;
-    margin-bottom: 12px;
-  }
-  .gt-compare-card-g {
-    background: rgba(22, 104, 194, 0.07);
-    border-radius: 12px;
-    padding: 12px 14px;
-    font-size: 16px;
-    font-weight: 600;
-    color: #1d1d1f;
-    line-height: 1.5;
-    margin-bottom: 10px;
-  }
-  .gt-compare-card-g span,
-  .gt-compare-card-o span {
-    display: block;
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 0.02em;
-    margin-bottom: 2px;
-  }
-  .gt-compare-card-g span {
-    color: #1668c2;
-  }
-  .gt-compare-card-o {
-    font-size: 14px;
-    color: #86868b;
-    line-height: 1.5;
-    padding: 6px 4px 0;
-  }
-  .gt-compare-card-o span {
-    color: #aeaeb2;
-  }
-}
-
 /* ── 部落格卡片 hover + 網格 RWD ── */
 .gt-blog-card {
   transition: transform 0.4s cubic-bezier(0.2, 0.7, 0.2, 1), box-shadow 0.4s ease;
@@ -1383,35 +1326,120 @@ button {
   }
 }
 
-/* ══ 行動版精簡（≤600px）：少字、短頁、處處有詢問入口 ══ */
-@media (max-width: 600px) {
-  /* 英文小標、次要說明段落：手機隱藏 */
-  .gt-eyebrow,
-  .gt-m-hide {
-    display: none !important;
+/* ══ 全站精簡（2026-11 改版）：少字、短頁、處處有詢問入口 ══ */
+.gt-eyebrow,
+.gt-m-hide {
+  display: none !important;
+}
+section[id]:not(#top) {
+  padding-top: clamp(64px, 8vw, 110px) !important;
+  padding-bottom: clamp(64px, 8vw, 110px) !important;
+}
+/* 服務：只留編號＋標題，桌機 3 欄小方塊 */
+.gt-services-grid > * {
+  grid-column: span 2 !important;
+  min-height: 0 !important;
+  padding: 28px 26px !important;
+  border-radius: 24px !important;
+  justify-content: flex-start !important;
+}
+.gt-services-grid h3 {
+  font-size: 21px !important;
+  line-height: 1.35 !important;
+  margin: 0 !important;
+}
+.gt-services-grid p {
+  display: none !important;
+}
+/* 對比：全站改為勾選清單（只列給樂的答案） */
+.gt-compare-wrap {
+  display: none !important;
+}
+.gt-compare-cards {
+  display: grid !important;
+  max-width: 640px;
+  margin: 0 auto;
+  gap: 0;
+  background: rgba(22, 104, 194, 0.06);
+  border-radius: 22px;
+  padding: 8px 26px;
+}
+.gt-compare-card {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  padding: 16px 0 16px 32px;
+  position: relative;
+  text-align: left;
+}
+.gt-compare-card:last-child {
+  border-bottom: none;
+}
+.gt-compare-card::before {
+  content: "✓";
+  position: absolute;
+  left: 2px;
+  top: 16px;
+  color: #1668c2;
+  font-weight: 700;
+  font-size: 18px;
+}
+.gt-compare-card-k {
+  font-size: 13px;
+  font-weight: 600;
+  color: #86868b;
+  margin-bottom: 2px;
+}
+.gt-compare-card-g {
+  font-size: 17px;
+  font-weight: 600;
+  color: #1d1d1f;
+  line-height: 1.5;
+}
+.gt-compare-card-g span,
+.gt-compare-card-o {
+  display: none !important;
+}
+
+/* 平板（≤768px）：服務 2 欄 */
+@media (max-width: 768px) {
+  .gt-services-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
   }
-  /* 區塊上下留白收斂 */
+  .gt-services-grid > * {
+    grid-column: auto !important;
+  }
+}
+
+/* ══ 行動版（≤600px）══ */
+@media (max-width: 600px) {
   section[id]:not(#top) {
     padding-top: 64px !important;
     padding-bottom: 64px !important;
   }
-  /* 服務：2 欄小方塊，只留編號＋標題 */
   .gt-services-grid {
     grid-template-columns: repeat(2, 1fr) !important;
     gap: 12px !important;
   }
   .gt-services-grid > * {
+    grid-column: auto !important;
     padding: 18px 16px !important;
     border-radius: 20px !important;
-    justify-content: flex-start !important;
   }
   .gt-services-grid h3 {
     font-size: 16px !important;
-    line-height: 1.35 !important;
-    margin: 0 !important;
   }
-  .gt-services-grid p {
-    display: none !important;
+  .gt-compare-cards {
+    padding: 6px 18px;
+    border-radius: 20px;
+  }
+  .gt-compare-card {
+    padding: 14px 0 14px 30px;
+  }
+  .gt-compare-card::before {
+    top: 14px;
+    font-size: 17px;
+  }
+  .gt-compare-card-g {
+    font-size: 16px;
   }
   /* 案例：橫向滑動，一次一張＋露出下一張 */
   .gt-work-grid {
@@ -1429,50 +1457,6 @@ button {
   .gt-work-grid > * {
     flex: 0 0 82%;
     scroll-snap-align: center;
-  }
-  /* 對比：手機只列給樂的答案（勾選清單） */
-  .gt-compare-card-o {
-    display: none;
-  }
-  .gt-compare-cards {
-    gap: 0 !important;
-    background: rgba(22, 104, 194, 0.06);
-    border-radius: 20px;
-    padding: 6px 18px;
-  }
-  .gt-compare-card {
-    background: none !important;
-    border: none !important;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.06) !important;
-    border-radius: 0 !important;
-    padding: 14px 0 14px 30px !important;
-    position: relative;
-  }
-  .gt-compare-card:last-child {
-    border-bottom: none !important;
-  }
-  .gt-compare-card::before {
-    content: "✓";
-    position: absolute;
-    left: 2px;
-    top: 14px;
-    color: #1668c2;
-    font-weight: 700;
-    font-size: 17px;
-  }
-  .gt-compare-card-k {
-    font-size: 13px !important;
-    font-weight: 600 !important;
-    color: #86868b !important;
-    margin-bottom: 2px !important;
-  }
-  .gt-compare-card-g {
-    background: none !important;
-    padding: 0 !important;
-    margin: 0 !important;
-  }
-  .gt-compare-card-g span {
-    display: none !important;
   }
   /* 底部固定詢問列出現時，頁尾留空間 */
   body.gt-has-cta-bar {

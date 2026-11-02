@@ -161,6 +161,7 @@ export default function ChatWidget() {
   }, []);
   const marketingPage = pathname === "/" || !!pathname?.startsWith("/blog") || pathname === "/ai";
   const showBar = isMobile && marketingPage && !open;
+  const pill = !isMobile && marketingPage && !open;
   useEffect(() => {
     document.body.classList.toggle("gt-has-cta-bar", showBar);
     return () => document.body.classList.remove("gt-has-cta-bar");
@@ -208,9 +209,12 @@ export default function ChatWidget() {
           right: 20,
           bottom: 20,
           zIndex: 60,
-          width: 60,
+          // 桌機行銷頁且未開啟：帶文字的膠囊按鈕（「免費詢問」），其他情況維持圓形
+          width: pill ? "auto" : 60,
           height: 60,
-          borderRadius: "50%",
+          padding: pill ? "0 24px" : 0,
+          gap: 8,
+          borderRadius: pill ? 980 : "50%",
           border: "none",
           cursor: "pointer",
           background: BRAND_BLUE,
@@ -219,10 +223,17 @@ export default function ChatWidget() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          fontSize: 26,
+          fontSize: pill ? 16 : 26,
+          fontWeight: pill ? 600 : 400,
         }}
       >
-        {open ? "✕" : "💬"}
+        {open ? "✕" : pill ? (
+          <>
+            <span style={{ fontSize: 22 }}>💬</span>免費詢問・AI 當場估價
+          </>
+        ) : (
+          "💬"
+        )}
       </button>
       )}
 
