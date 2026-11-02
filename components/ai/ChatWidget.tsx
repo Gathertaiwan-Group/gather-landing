@@ -323,7 +323,11 @@ export default function ChatWidget() {
           </form>
           <div style={{ fontSize: 11, color: "#9aa3b0", textAlign: "center", padding: "0 12px 10px", background: "#fff" }}>
             AI 生成內容僅供參考，正式諮詢請{" "}
-            <a href="/#contact" data-contact-form="" onClick={() => setOpen(false)} style={{ color: BRAND_BLUE }}>
+            <a href="/#contact" data-contact-form=""
+              onClick={() => {
+                setOpen(false);
+                document.getElementById("contact-form-details")?.setAttribute("open", "");
+              }} style={{ color: BRAND_BLUE }}>
               填聯絡表單
             </a>
           </div>

@@ -39,12 +39,9 @@ const onTextLeave = (e: React.MouseEvent<HTMLElement>) => {
 
 // ── AI 賦能能力（深色區）──
 const AI_CAPABILITIES = [
-  { n: "01", t: "客戶分群與流失預測", d: "AI 分析行為，提前標記高風險客戶，主動挽回。", accent: "#5aa0ec" },
-  { n: "02", t: "流程自動化", d: "下單、跟進、客服的重複工作交給 AI，團隊專注在人。", accent: "#f0a564" },
-  { n: "03", t: "行銷內容生成", d: "依品牌語氣自動產出文案、EDM 與社群貼文。", accent: "#5aa0ec" },
-  { n: "04", t: "智慧客服", d: "24 小時回覆常見問題，複雜的才轉真人。", accent: "#f0a564" },
-  { n: "05", t: "數據洞察儀表板", d: "把散落的數據變成看得懂、能行動的建議。", accent: "#5aa0ec" },
-  { n: "06", t: "個人化推薦", d: "依每位客戶推薦最相關的商品或內容，提升客單價。", accent: "#f0a564" },
+  { n: "01", t: "客戶分群與個人化推薦", d: "AI 分析行為，標記高風險客戶主動挽回，並為每位客戶推薦最相關的商品或內容。", accent: "#5aa0ec" },
+  { n: "02", t: "流程自動化與智慧客服", d: "下單、跟進、客服的重複工作交給 AI，24 小時回覆常見問題，團隊專注在人。", accent: "#f0a564" },
+  { n: "03", t: "數據洞察與內容生成", d: "把散落的數據變成能行動的建議，並依品牌語氣自動產出文案、EDM 與社群貼文。", accent: "#5aa0ec" },
 ];
 
 // ── 差異化對比（一般方案 vs 給樂）──
@@ -243,15 +240,6 @@ export default function GatherLanding({
         </a>
         <div style={{ display: "flex", alignItems: "center", gap: 34 }}>
           <a
-            href="#about"
-            className="gt-navlink-text"
-            onMouseEnter={onNavlinkEnter}
-            onMouseLeave={onNavlinkLeave}
-            style={{ fontSize: 14, color: "#1d1d1f", textDecoration: "none", opacity: 0.82 }}
-          >
-            理念
-          </a>
-          <a
             href="#ai"
             className="gt-navlink-text"
             onMouseEnter={onNavlinkEnter}
@@ -366,7 +354,7 @@ export default function GatherLanding({
               color: "#6e6e73",
             }}
           >
-            客製化網站、AI 賦能的 CRM 系統、金、物流與電子發票串接
+            客製化網站、AI 賦能的 CRM 系統、金流、物流與電子發票串接
             <br />
             讓智慧技術與精緻設計精準結合，一站到位。
           </p>
@@ -439,47 +427,6 @@ export default function GatherLanding({
           </div>
         </div>
       </header>
-
-      {/* ============ ABOUT (scroll word-brighten) ============ */}
-      <section
-        id="about"
-        style={{
-          position: "relative",
-          zIndex: 1,
-          padding: "clamp(96px,16vw,170px) 6vw",
-          scrollMarginTop: 60,
-          textAlign: "center",
-          background: "#f5f5f7",
-        }}
-      >
-        <div style={{ maxWidth: 1020, margin: "0 auto" }}>
-          <div
-            data-reveal=""
-            style={{
-              fontSize: 15,
-              fontWeight: 600,
-              letterSpacing: ".04em",
-              color: BRAND_BLUE,
-              marginBottom: 30,
-            }}
-          >
-            Our Philosophy
-          </div>
-          <h2
-            data-words=""
-            style={{
-              margin: 0,
-              color: "#c7c7cc",
-              fontWeight: 700,
-              fontSize: "clamp(28px,4vw,54px)",
-              lineHeight: 1.4,
-              letterSpacing: "-.02em",
-            }}
-          >
-            我們不只交付網站，而是交付一套由 AI 賦能、值得被信賴、能隨品牌持續成長的數位系統。當智慧技術與精緻設計結合，品牌的價值不只是相加，而是相乘。
-          </h2>
-        </div>
-      </section>
 
       {/* ============ AI 賦能 (dark highlight) ============ */}
       <section
@@ -650,7 +597,7 @@ export default function GatherLanding({
                 color: "#6e6e73",
               }}
             >
-              七項以 AI 賦能的核心服務，覆蓋品牌數位化的完整旅程。
+              六項以 AI 賦能的核心服務，覆蓋品牌數位化的完整旅程。
             </p>
           </div>
 
@@ -775,36 +722,29 @@ export default function GatherLanding({
               </div>
             </div>
 
-            {/* 03 金流／物流串接 */}
+            {/* 03 金流／物流／電子發票串接 */}
             <ServiceCardSmall
-              span={2}
+              span={3}
               num="03"
-              title="金流／物流串接"
-              desc="串接主流金、物流，下單到出貨一氣呵成。"
+              title="金流／物流／電子發票串接"
+              desc="串接主流金流、物流與電子發票，下單、出貨到開票一氣呵成，合規又省力。"
             />
-            {/* 04 電子發票串接 */}
+            {/* 04 部落格系統 */}
             <ServiceCardSmall
-              span={2}
+              span={3}
               num="04"
-              title="電子發票串接"
-              desc="自動化開立、作廢與管理，合規又省力。"
-            />
-            {/* 05 部落格系統 */}
-            <ServiceCardSmall
-              span={2}
-              num="05"
               title="部落格系統"
               desc="穩固的內容管理架構，持續累積品牌聲量。"
             />
-            {/* 06 網站代管與維護 */}
+            {/* 05 網站代管與維護 */}
             <ServiceCardWide
-              num="06"
+              num="05"
               title="網站代管與維護"
               desc="伺服器管理、資安防護、備份與效能優化，確保網站穩定運行無虞。"
             />
-            {/* 07 SEO／數位行銷顧問 */}
+            {/* 06 SEO／數位行銷顧問 */}
             <ServiceCardWide
-              num="07"
+              num="06"
               title="SEO／數位行銷顧問"
               desc="AI 驅動、流量提升與行銷自動化，成為品牌長期成長的策略夥伴。"
             />
@@ -989,9 +929,34 @@ export default function GatherLanding({
           >
             不論是全新官網、系統整合，或既有網站的優化升級——歡迎直接與我們聊聊你的構想。
           </p>
-          <div style={{ marginTop: 8 }}>
-            <ContactForm />
-          </div>
+          <button
+            type="button"
+            onClick={() => window.dispatchEvent(new Event("gather:open-chat"))}
+            style={{
+              border: "none",
+              borderRadius: 980,
+              padding: "16px 34px",
+              fontSize: 17,
+              fontWeight: 600,
+              color: "#fff",
+              background: BRAND_BLUE,
+              cursor: "pointer",
+              boxShadow: "0 10px 30px rgba(22,104,194,.3)",
+            }}
+          >
+            💬 跟 AI 顧問聊需求
+          </button>
+          <p style={{ margin: "14px 0 0", fontSize: 14, color: "#86868b" }}>
+            當場告訴你大概多少錢，並幫你安排初步報價
+          </p>
+          <details id="contact-form-details" style={{ marginTop: 40, textAlign: "left" }}>
+            <summary style={{ cursor: "pointer", textAlign: "center", fontSize: 15, color: BRAND_BLUE, listStyle: "none" }}>
+              不想用 AI？改填聯絡表單 ›
+            </summary>
+            <div style={{ marginTop: 24 }}>
+              <ContactForm />
+            </div>
+          </details>
         </div>
       </section>
 
