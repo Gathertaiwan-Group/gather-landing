@@ -8,9 +8,8 @@ const BRAND_BLUE = "#1668c2";
 
 type Msg = { role: "user" | "model"; text: string };
 
-const GREETING =
-  "嗨！我是給樂數位的 AI 助理 👋 想做網站、AI CRM 或金流串接，都可以問我——想知道做一個大概多少錢，也可以直接問，我還能當場幫你安排一份初步報價 💬";
-const SUGGESTIONS = ["你們提供哪些服務？", "跟一般網頁公司差在哪？", "AI 賦能能幫我做什麼？", "怎麼開始合作？"];
+const GREETING = "嗨！我是給樂的 AI 顧問 👋 想做網站、會員系統或金流串接都可以問我，價格也能直接告訴你。";
+const SUGGESTIONS = ["做一個官網多少錢？", "我想做電商網站", "AI CRM 能做什麼？", "怎麼開始合作？"];
 
 type AiStatus = "checking" | "online" | "offline";
 const STATUS_TEXT: Record<AiStatus, string> = {
@@ -377,13 +376,13 @@ export default function ChatWidget() {
             </button>
           </form>
           <div style={{ fontSize: 11, color: "#9aa3b0", textAlign: "center", padding: "0 12px 10px", background: "#fff" }}>
-            AI 生成內容僅供參考，正式諮詢請{" "}
+            AI 回覆僅供參考・不想用 AI？{" "}
             <a href="/#contact" data-contact-form=""
               onClick={() => {
                 setOpen(false);
                 document.getElementById("contact-form-details")?.setAttribute("open", "");
               }} style={{ color: BRAND_BLUE }}>
-              填聯絡表單
+              改填表單
             </a>
           </div>
         </div>
