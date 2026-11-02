@@ -2,7 +2,7 @@
 
 import { useEffect, type CSSProperties, type ReactNode } from "react";
 import type { Project } from "@/lib/projects";
-import ContactForm from "@/components/ContactForm";
+import { LINE_OA_URL } from "@/lib/line";
 
 /* ============================================================
    給樂數位 Gather 官網 — 由 reference-build/index.html 逐項移植。
@@ -967,14 +967,12 @@ export default function GatherLanding({
           <p style={{ margin: "14px 0 0", fontSize: 14, color: "#86868b" }}>
             當場告訴你大概多少錢，並幫你安排初步報價
           </p>
-          <details id="contact-form-details" style={{ marginTop: 40, textAlign: "left" }}>
-            <summary style={{ cursor: "pointer", textAlign: "center", fontSize: 15, color: BRAND_BLUE, listStyle: "none" }}>
-              不想用 AI？改填聯絡表單 ›
-            </summary>
-            <div style={{ marginTop: 24 }}>
-              <ContactForm />
-            </div>
-          </details>
+          <p style={{ margin: "28px 0 0", fontSize: 15, color: "#86868b" }}>
+            想找真人？{" "}
+            <a href={LINE_OA_URL} target="_blank" rel="noopener noreferrer" style={{ color: BRAND_BLUE, fontWeight: 600, textDecoration: "none" }}>
+              加官方 LINE ›
+            </a>
+          </p>
         </div>
       </section>
 

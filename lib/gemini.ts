@@ -175,11 +175,11 @@ export function aiErrorResponse(err: unknown): { status: number; body: Record<st
   if (err instanceof RateLimitError) {
     return {
       status: 429,
-      body: { ok: false, error: "rate_limited", message: "今天的 AI 試用次數用得差不多了，歡迎在官網下方填聯絡表單，我們會盡快與您聯繫。" },
+      body: { ok: false, error: "rate_limited", message: "今天的 AI 試用次數用得差不多了，想直接找真人，歡迎加官方 LINE：https://line.me/R/ti/p/@864nqqxj" },
     };
   }
   return {
     status: 502,
-    body: { ok: false, error: "ai_error", message: "AI 暫時忙線中，請稍後再試，或在官網下方填聯絡表單與我們聯繫。" },
+    body: { ok: false, error: "ai_error", message: "AI 暫時忙線中，請稍後再試；想直接找真人，歡迎加官方 LINE：https://line.me/R/ti/p/@864nqqxj" },
   };
 }

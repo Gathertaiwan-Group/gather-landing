@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { trackEvent } from "@/lib/analytics";
+import { LINE_OA_URL } from "@/lib/line";
 
 const BRAND_BLUE = "#1668c2";
 
@@ -93,13 +94,12 @@ export default function ChatWidget() {
   }, []);
 
   // 全站「聯絡我們／預約諮詢」等指向 #contact 的連結，一律改成開啟 AI 對話匡（由 AI 直接收單）。
-  // 例外：帶 data-contact-form 的連結（例如對話匡底部「填聯絡表單」）照原本捲到表單。
   useEffect(() => {
     if (pathname?.startsWith("/admin")) return;
     const onClick = (e: MouseEvent) => {
       if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
       const a = (e.target as Element | null)?.closest?.("a");
-      if (!a || a.hasAttribute("data-contact-form")) return;
+      if (!a) return;
       let url: URL;
       try {
         url = new URL(a.getAttribute("href") ?? "", window.location.href);
@@ -152,7 +152,7 @@ export default function ChatWidget() {
       if (data.ok && data.quotePending) void generateQuote();
     } catch {
       setStatus("offline");
-      setMsgs((m) => [...m, { role: "model", text: "連線出了點問題，請稍後再試，或到官網下方填聯絡表單。" }]);
+      setMsgs((m) => [...m, { role: "model", text: "連線出了點問題，請稍後再試；想找真人也可以加官方 LINE：https://line.me/R/ti/p/@864nqqxj" }]);
     } finally {
       setLoading(false);
     }
@@ -397,13 +397,15 @@ export default function ChatWidget() {
             </button>
           </form>
           <div style={{ fontSize: 11, color: "#9aa3b0", textAlign: "center", padding: "0 12px 10px", background: "#fff" }}>
-            AI 回覆僅供參考・不想用 AI？{" "}
-            <a href="/#contact" data-contact-form=""
-              onClick={() => {
-                setOpen(false);
-                document.getElementById("contact-form-details")?.setAttribute("open", "");
-              }} style={{ color: BRAND_BLUE }}>
-              改填表單
+            AI 回覆僅供參考・想找真人？{" "}
+            <a
+              href={LINE_OA_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => trackEvent("ai_chat_link", { host: "line.me" })}
+              style={{ color: BRAND_BLUE, fontWeight: 600 }}
+            >
+              加官方 LINE
             </a>
           </div>
         </div>
