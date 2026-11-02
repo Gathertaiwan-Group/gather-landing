@@ -11,6 +11,27 @@ type Msg = { role: "user" | "model"; text: string };
 const GREETING = "嗨！我是給樂的 AI 顧問 👋 想做網站、會員系統或金流串接都可以問我，價格也能直接告訴你。";
 const SUGGESTIONS = ["做一個官網多少錢？", "我想做電商網站", "AI CRM 能做什麼？", "怎麼開始合作？"];
 
+/** AI 回覆中的網址轉成可點連結（例如官方 LINE），其餘維持純文字（React 會轉義，不會注入 HTML）。 */
+function linkify(text: string) {
+  const parts = text.split(/(https?:\/\/[^\s，。、）)」]+)/g);
+  return parts.map((part, i) =>
+    /^https?:\/\//.test(part) ? (
+      <a
+        key={i}
+        href={part}
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{ color: BRAND_BLUE, wordBreak: "break-all", fontWeight: 600 }}
+        onClick={() => trackEvent("ai_chat_link", { host: (() => { try { return new URL(part).host; } catch { return ""; } })() })}
+      >
+        {part.includes("line.me") ? "👉 加入給樂官方 LINE" : part}
+      </a>
+    ) : (
+      part
+    )
+  );
+}
+
 type AiStatus = "checking" | "online" | "offline";
 const STATUS_TEXT: Record<AiStatus, string> = {
   checking: "檢查連線中…",
@@ -300,7 +321,7 @@ export default function ChatWidget() {
                     boxShadow: m.role === "user" ? "none" : "0 2px 10px rgba(20,40,80,.06)",
                   }}
                 >
-                  {m.text}
+                  {m.role === "model" ? linkify(m.text) : m.text}
                 </div>
               </div>
             ))}
