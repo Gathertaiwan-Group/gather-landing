@@ -801,6 +801,26 @@ export default function GatherLanding({
               </tbody>
             </table>
           </div>
+          {/* 手機版：每個比較項目一張卡，給樂的答案放最前面並強調（避免要橫向滑動才看得到給樂欄） */}
+          <div data-reveal="" className="gt-compare-cards">
+            {COMPARE_ROWS.map((r) => (
+              <div key={r.k} className="gt-compare-card">
+                <div className="gt-compare-card-k">{r.k}</div>
+                <div className="gt-compare-card-g">
+                  <span>給樂數位</span>
+                  {r.g}
+                </div>
+                <div className="gt-compare-card-o">
+                  <span>一般網頁公司</span>
+                  {r.a}
+                </div>
+                <div className="gt-compare-card-o">
+                  <span>租用型 SaaS 平台</span>
+                  {r.b}
+                </div>
+              </div>
+            ))}
+          </div>
 
           <div data-reveal="" style={{ textAlign: "center", marginTop: "clamp(34px,6vw,50px)" }}>
             <p style={{ margin: "0 0 22px", fontSize: 19, fontWeight: 600, color: "#1d1d1f" }}>

@@ -238,6 +238,63 @@ button {
   border-bottom-color: transparent;
 }
 
+/* 手機：對比表改為卡片（給樂答案優先），桌機維持表格 */
+.gt-compare-cards {
+  display: none;
+}
+@media (max-width: 700px) {
+  .gt-compare-wrap {
+    display: none;
+  }
+  .gt-compare-cards {
+    display: grid;
+    gap: 14px;
+  }
+  .gt-compare-card {
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 18px;
+    padding: 18px 18px 14px;
+    text-align: left;
+  }
+  .gt-compare-card-k {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1d1d1f;
+    margin-bottom: 12px;
+  }
+  .gt-compare-card-g {
+    background: rgba(22, 104, 194, 0.07);
+    border-radius: 12px;
+    padding: 12px 14px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #1d1d1f;
+    line-height: 1.5;
+    margin-bottom: 10px;
+  }
+  .gt-compare-card-g span,
+  .gt-compare-card-o span {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    margin-bottom: 2px;
+  }
+  .gt-compare-card-g span {
+    color: #1668c2;
+  }
+  .gt-compare-card-o {
+    font-size: 14px;
+    color: #86868b;
+    line-height: 1.5;
+    padding: 6px 4px 0;
+  }
+  .gt-compare-card-o span {
+    color: #aeaeb2;
+  }
+}
+
 /* ── 部落格卡片 hover + 網格 RWD ── */
 .gt-blog-card {
   transition: transform 0.4s cubic-bezier(0.2, 0.7, 0.2, 1), box-shadow 0.4s ease;
